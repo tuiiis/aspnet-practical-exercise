@@ -32,6 +32,23 @@ a:focus {
   color: #9B8DF5;
 }
 
+/* Disabled Links */
+a.disabled,
+a[disabled],
+.disabled-link {
+  color: #666666 !important;
+  cursor: not-allowed;
+  text-decoration: none;
+  pointer-events: none;
+}
+
+a.disabled:hover,
+a[disabled]:hover,
+.disabled-link:hover {
+  color: #666666 !important;
+  text-decoration: none;
+}
+
 /* Primary Buttons - Purple Accent */
 .btn-primary {
   background-color: #7F6DF2;
@@ -165,6 +182,66 @@ a:focus {
 }
 
 .form-control::placeholder {
+  color: #999999;
+}
+
+/* Form Control Plaintext (readonly fields) */
+.form-control-plaintext {
+  background-color: #333333 !important;
+  border-color: transparent;
+  color: #e0e0e0 !important;
+}
+
+.form-control-plaintext:focus {
+  background-color: #333333 !important;
+  border-color: #7F6DF2;
+  color: #e0e0e0 !important;
+  box-shadow: 0 0 0 0.1rem #282828, 0 0 0 0.25rem rgba(127, 109, 242, 0.25);
+}
+
+/* Readonly and Disabled Input Fields */
+.form-control[readonly],
+.form-control[disabled],
+input[readonly],
+input[disabled],
+textarea[readonly],
+textarea[disabled],
+select[readonly],
+select[disabled] {
+  background-color: #333333 !important;
+  border-color: #555555;
+  color: #999999 !important;
+  cursor: not-allowed;
+}
+
+.form-control[readonly]:focus,
+input[readonly]:focus,
+textarea[readonly]:focus {
+  background-color: #333333 !important;
+  border-color: #555555;
+  color: #999999 !important;
+  box-shadow: none;
+}
+
+/* Generic Input Fields (without form-control class) - for Identity pages and other forms */
+input:not(.form-control):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(.form-check-input),
+textarea:not(.form-control) {
+  background-color: #333333 !important;
+  border-color: #555555;
+  color: #e0e0e0 !important;
+}
+
+input:not(.form-control):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(.form-check-input):focus,
+textarea:not(.form-control):focus {
+  background-color: #333333 !important;
+  border-color: #7F6DF2;
+  color: #e0e0e0 !important;
+  box-shadow: 0 0 0 0.1rem #282828, 0 0 0 0.25rem rgba(127, 109, 242, 0.25);
+  outline: none;
+}
+
+input:not(.form-control):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not(.form-check-input)::placeholder,
+textarea:not(.form-control)::placeholder {
   color: #999999;
 }
 
