@@ -64,5 +64,142 @@ namespace TodoListApp.WebApp.Controllers
             }
             return View(todoList);
         }
+
+        // GET: TodoLists/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // 1. Get the current user's ID.
+            var userId = _userManager.GetUserId(User);
+
+            // 2. Find the list in the DB *only if* the ID matches AND the user is the owner.
+            //    This is a crucial security check.
+            var todoList = await _context.TodoLists
+                .FirstOrDefaultAsync(m => m.Id == id && m.OwnerId == userId);
+
+            if (todoList == null)
+            {
+                // If it's not found (or not owned by the user), return 404.
+                return NotFound();
+            }
+
+            // 3. Show the form and pass in the list we found.
+            return View(todoList);
+        }
+
+        // POST: TodoLists/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title")] TodoList todoList)
+        {
+            // This check makes sure the ID from the URL matches the ID from the form's hidden field
+            if (id != todoList.Id)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            // We must remove OwnerId from validation, just like we did in Create
+            // We'll also remove Title for a moment so we can fetch the real object first.
+            ModelState.Remove("OwnerId");
+            ModelState.Remove("Title");
+
+            // Check if the (empty) model is valid so far
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // 1. Find the *original* list from the database
+                    var originalList = await _context.TodoLists
+                        .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+                    // 2. Security check: If it's null, it's not theirs or doesn't exist.
+                    if (originalList == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // 3. Update the original list's title with the new one from the form
+                    originalList.Title = todoList.Title;
+
+                    // 4. Save the changes to the database
+                    _context.Update(originalList);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // This is a rare error case, but it's good practice to have
+                    if (!_context.TodoLists.Any(e => e.Id == todoList.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                // 5. Send the user back to the main list page
+                return RedirectToAction(nameof(Index));
+            }
+
+            // If anything failed, show the form again
+            return View(todoList);
+        }
+
+        // GET: TodoLists/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            // Find the list, ensuring it's owned by the current user
+            var todoList = await _context.TodoLists
+                .FirstOrDefaultAsync(m => m.Id == id && m.OwnerId == userId);
+
+            if (todoList == null)
+            {
+                // Not found or not owned by user
+                return NotFound();
+            }
+
+            // Pass the list to the view
+            return View(todoList);
+        }
+
+        // POST: TodoLists/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            // Find the list, ensuring it's owned by the current user
+            var todoList = await _context.TodoLists
+                .FirstOrDefaultAsync(m => m.Id == id && m.OwnerId == userId);
+
+            if (todoList == null)
+            {
+                // Not found or not owned by user
+                return NotFound();
+            }
+
+            // Remove the list from the context
+            _context.TodoLists.Remove(todoList);
+
+            // Save the change to the database
+            await _context.SaveChangesAsync();
+
+            // Send the user back to the main list page
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
