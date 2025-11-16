@@ -34,10 +34,10 @@ Here are some hints for you:
 
 | Epic | User Story | Description                                                                     | Is completed? |
 |------|------------|---------------------------------------------------------------------------------|---------------|
-| EP01 | US01       | View the list of my to-do lists.                                                |               |
-| EP01 | US02       | Add a new to-do list.                                                           |               |
-| EP01 | US03       | Delete a to-do list.                                                            |               |
-| EP01 | US04       | Edit a to-do list.                                                              |               |
+| EP01 | US01       | View the list of my to-do lists.                                                | ✅            |
+| EP01 | US02       | Add a new to-do list.                                                           | ✅            |
+| EP01 | US03       | Delete a to-do list.                                                            | ✅            |
+| EP01 | US04       | Edit a to-do list.                                                              | ✅            |
 | EP02 | US05       | View the list of tasks in a to-do list.                                         |               |
 | EP02 | US06       | View the task details page.                                                     |               |
 | EP02 | US07       | Add a new to-do task.                                                           |               |
