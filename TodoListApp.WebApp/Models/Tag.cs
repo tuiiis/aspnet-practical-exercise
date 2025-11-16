@@ -10,7 +10,6 @@ namespace TodoListApp.WebApp.Models
         [StringLength(50)]
         public string? Name { get; set; }
 
-        // --- Navigation Property for Tasks (Many-to-Many) ---
         public virtual ICollection<TodoTask> Tasks { get; set; } = new List<TodoTask>();
     }
 }
