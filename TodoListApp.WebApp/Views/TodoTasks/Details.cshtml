@@ -1,0 +1,71 @@
+@model TodoListApp.WebApp.Models.TodoTask
+
+@{
+    ViewData["Title"] = "Task Details";
+    var isOverdue = Model.DueDate.HasValue && Model.DueDate.Value < DateTime.UtcNow && Model.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
+}
+
+<h2>Task Details</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+            @if (isOverdue)
+            {
+                <span class="badge bg-danger ms-2">Overdue</span>
+            }
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DueDate)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.DueDate.HasValue)
+            {
+                @Model.DueDate.Value.ToString("MM/dd/yyyy HH:mm")
+                @if (isOverdue)
+                {
+                    <span class="text-danger ms-2">(Overdue)</span>
+                }
+            }
+            else
+            {
+                <span class="text-muted">No due date</span>
+            }
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Model.CreatedDate.ToString("MM/dd/yyyy HH:mm")
+        </dd>
+        <dt class="col-sm-2">
+            To-do List
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TodoList!.Title)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Back to Tasks</a>
+    <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary">Back to Lists</a>
+</div>
+

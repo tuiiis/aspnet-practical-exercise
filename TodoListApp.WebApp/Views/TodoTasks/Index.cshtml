@@ -1,0 +1,80 @@
+@model IEnumerable<TodoListApp.WebApp.Models.TodoTask>
+
+@{
+    ViewData["Title"] = "Tasks";
+    var todoListId = ViewData["TodoListId"] as int?;
+    var todoListTitle = ViewData["TodoListTitle"] as string ?? "Tasks";
+}
+
+<h2>@todoListTitle - Tasks</h2>
+
+<p>
+    <a asp-action="Create" asp-route-todoListId="@todoListId" class="btn btn-primary btn-lg">Create New Task</a>
+    <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary btn-lg ms-2">Back to Lists</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No tasks found. Create your first task!</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DueDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreatedDate)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
+                var rowClass = isOverdue ? "table-danger" : "";
+                
+                <tr class="@rowClass">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                        @if (isOverdue)
+                        {
+                            <span class="badge bg-danger ms-2">Overdue</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @if (item.DueDate.HasValue)
+                        {
+                            @item.DueDate.Value.ToString("MM/dd/yyyy")
+                        }
+                        else
+                        {
+                            <span class="text-muted">No due date</span>
+                        }
+                    </td>
+                    <td>
+                        @item.CreatedDate.ToString("MM/dd/yyyy")
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm me-2">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm me-2">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
