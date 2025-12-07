@@ -52,7 +52,7 @@ namespace TodoListApp.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tag",
+                name: "Tags",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -61,7 +61,7 @@ namespace TodoListApp.WebApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tag", x => x.Id);
+                    table.PrimaryKey("PK_Tags", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,7 +171,7 @@ namespace TodoListApp.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TodoList",
+                name: "TodoLists",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -181,9 +181,9 @@ namespace TodoListApp.WebApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TodoList", x => x.Id);
+                    table.PrimaryKey("PK_TodoLists", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TodoList_AspNetUsers_OwnerId",
+                        name: "FK_TodoLists_AspNetUsers_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -191,7 +191,7 @@ namespace TodoListApp.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TodoTask",
+                name: "TodoTasks",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -205,17 +205,17 @@ namespace TodoListApp.WebApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TodoTask", x => x.Id);
+                    table.PrimaryKey("PK_TodoTasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TodoTask_TodoList_TodoListId",
+                        name: "FK_TodoTasks_TodoLists_TodoListId",
                         column: x => x.TodoListId,
-                        principalTable: "TodoList",
+                        principalTable: "TodoLists",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Comment",
+                name: "Comments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -227,17 +227,17 @@ namespace TodoListApp.WebApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Comment", x => x.Id);
+                    table.PrimaryKey("PK_Comments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Comment_AspNetUsers_AuthorId",
+                        name: "FK_Comments_AspNetUsers_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Comment_TodoTask_TodoTaskId",
+                        name: "FK_Comments_TodoTasks_TodoTaskId",
                         column: x => x.TodoTaskId,
-                        principalTable: "TodoTask",
+                        principalTable: "TodoTasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -253,15 +253,15 @@ namespace TodoListApp.WebApp.Migrations
                 {
                     table.PrimaryKey("PK_TagTodoTask", x => new { x.TagsId, x.TasksId });
                     table.ForeignKey(
-                        name: "FK_TagTodoTask_Tag_TagsId",
+                        name: "FK_TagTodoTask_Tags_TagsId",
                         column: x => x.TagsId,
-                        principalTable: "Tag",
+                        principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TagTodoTask_TodoTask_TasksId",
+                        name: "FK_TagTodoTask_TodoTasks_TasksId",
                         column: x => x.TasksId,
-                        principalTable: "TodoTask",
+                        principalTable: "TodoTasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -304,13 +304,13 @@ namespace TodoListApp.WebApp.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comment_AuthorId",
-                table: "Comment",
+                name: "IX_Comments_AuthorId",
+                table: "Comments",
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comment_TodoTaskId",
-                table: "Comment",
+                name: "IX_Comments_TodoTaskId",
+                table: "Comments",
                 column: "TodoTaskId");
 
             migrationBuilder.CreateIndex(
@@ -319,13 +319,13 @@ namespace TodoListApp.WebApp.Migrations
                 column: "TasksId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TodoList_OwnerId",
-                table: "TodoList",
+                name: "IX_TodoLists_OwnerId",
+                table: "TodoLists",
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TodoTask_TodoListId",
-                table: "TodoTask",
+                name: "IX_TodoTasks_TodoListId",
+                table: "TodoTasks",
                 column: "TodoListId");
         }
 
@@ -348,7 +348,7 @@ namespace TodoListApp.WebApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Comment");
+                name: "Comments");
 
             migrationBuilder.DropTable(
                 name: "TagTodoTask");
@@ -357,13 +357,13 @@ namespace TodoListApp.WebApp.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Tag");
+                name: "Tags");
 
             migrationBuilder.DropTable(
-                name: "TodoTask");
+                name: "TodoTasks");
 
             migrationBuilder.DropTable(
-                name: "TodoList");
+                name: "TodoLists");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

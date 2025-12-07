@@ -12,7 +12,7 @@ using TodoListApp.WebApp.Data;
 namespace TodoListApp.WebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251116131118_InitialCreate")]
+    [Migration("20251207170551_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -268,7 +268,7 @@ namespace TodoListApp.WebApp.Migrations
 
                     b.HasIndex("TodoTaskId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("TodoListApp.WebApp.Models.Tag", b =>
@@ -286,7 +286,7 @@ namespace TodoListApp.WebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("TodoListApp.WebApp.Models.TodoList", b =>
@@ -310,7 +310,7 @@ namespace TodoListApp.WebApp.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("TodoList");
+                    b.ToTable("TodoLists");
                 });
 
             modelBuilder.Entity("TodoListApp.WebApp.Models.TodoTask", b =>
@@ -345,7 +345,7 @@ namespace TodoListApp.WebApp.Migrations
 
                     b.HasIndex("TodoListId");
 
-                    b.ToTable("TodoTask");
+                    b.ToTable("TodoTasks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -447,7 +447,7 @@ namespace TodoListApp.WebApp.Migrations
             modelBuilder.Entity("TodoListApp.WebApp.Models.TodoTask", b =>
                 {
                     b.HasOne("TodoListApp.WebApp.Models.TodoList", "TodoList")
-                        .WithMany("Tasks")
+                        .WithMany()
                         .HasForeignKey("TodoListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -458,11 +458,6 @@ namespace TodoListApp.WebApp.Migrations
             modelBuilder.Entity("TodoListApp.WebApp.Models.ApplicationUser", b =>
                 {
                     b.Navigation("TodoLists");
-                });
-
-            modelBuilder.Entity("TodoListApp.WebApp.Models.TodoList", b =>
-                {
-                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("TodoListApp.WebApp.Models.TodoTask", b =>
