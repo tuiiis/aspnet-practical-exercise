@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TodoListApp.WebApp.Models
 {
@@ -9,10 +10,12 @@ namespace TodoListApp.WebApp.Models
 
         [Required]
         [StringLength(100)]
-        public string? Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [Required]
-        public string? OwnerId { get; set; }
+        public string OwnerId { get; set; }
+
+        [ForeignKey(nameof(OwnerId))]
         public virtual ApplicationUser? Owner { get; set; }
     }
 }
