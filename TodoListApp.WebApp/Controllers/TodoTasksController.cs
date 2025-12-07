@@ -133,7 +133,8 @@ namespace TodoListApp.WebApp.Controllers
                 // Convert local time to UTC for storage
                 if (todoTask.DueDate.HasValue)
                 {
-                    todoTask.DueDate = todoTask.DueDate.Value.ToUniversalTime();
+                    var localTime = DateTime.SpecifyKind(todoTask.DueDate.Value, DateTimeKind.Local);
+                    todoTask.DueDate = localTime.ToUniversalTime();
                 }
                 _context.Add(todoTask);
                 await _context.SaveChangesAsync();
@@ -210,7 +211,8 @@ namespace TodoListApp.WebApp.Controllers
                     // Convert local time to UTC for storage
                     if (todoTask.DueDate.HasValue)
                     {
-                        originalTask.DueDate = todoTask.DueDate.Value.ToUniversalTime();
+                        var localTime = DateTime.SpecifyKind(todoTask.DueDate.Value, DateTimeKind.Local);
+                        originalTask.DueDate = localTime.ToUniversalTime();
                     }
                     else
                     {

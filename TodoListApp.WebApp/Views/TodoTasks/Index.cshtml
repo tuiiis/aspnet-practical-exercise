@@ -57,7 +57,7 @@ else
                     <td>
                         @if (item.DueDate.HasValue)
                         {
-                            @item.DueDate.Value.ToString("MM/dd/yyyy")
+                            @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
                         }
                         else
                         {

@@ -39,7 +39,7 @@
         <dd class="col-sm-10">
             @if (Model.DueDate.HasValue)
             {
-                @Model.DueDate.Value.ToString("MM/dd/yyyy HH:mm")
+                @Model.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy HH:mm")
             }
             else
             {

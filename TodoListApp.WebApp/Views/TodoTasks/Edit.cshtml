@@ -38,7 +38,7 @@
                     var localDueDate = Model.DueDate?.ToLocalTime();
                     var dueDateValue = localDueDate?.ToString("yyyy-MM-ddTHH:mm");
                 }
-                <input asp-for="DueDate" type="datetime-local" class="form-control" value="@dueDateValue" />
+                <input type="datetime-local" name="@Html.NameFor(m => m.DueDate)" id="@Html.IdFor(m => m.DueDate)" class="form-control" value="@dueDateValue" />
                 <span asp-validation-for="DueDate" class="text-danger"></span>
             </div>
             
