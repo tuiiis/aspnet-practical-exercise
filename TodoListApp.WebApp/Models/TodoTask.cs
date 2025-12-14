@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TodoListApp.WebApp.Models
 {
@@ -23,6 +24,8 @@ namespace TodoListApp.WebApp.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         public int TodoListId { get; set; }
+        
+        [ForeignKey(nameof(TodoListId))]
         public virtual TodoList? TodoList { get; set; }
 
         public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
