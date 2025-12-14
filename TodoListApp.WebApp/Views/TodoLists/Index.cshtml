@@ -26,6 +26,7 @@
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
                 <td class="text-end">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm me-2" onclick="event.stopPropagation();">Details</a>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm me-2" onclick="event.stopPropagation();">Edit</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" onclick="event.stopPropagation();">Delete</a>
                 </td>

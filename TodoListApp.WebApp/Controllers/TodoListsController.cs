@@ -43,9 +43,10 @@ namespace TodoListApp.WebApp.Controllers
         public async Task<IActionResult> Create([Bind("Title")] TodoList todoList)
         {
             var userId = _userManager.GetUserId(User);
-            todoList.OwnerId = userId;
+            todoList.OwnerId = userId!;
 
             ModelState.Remove("OwnerId");
+            //ModelState.ClearValidationState(nameof(todoList.OwnerId)); ???
 
             if (ModelState.IsValid)
             {
@@ -87,9 +88,9 @@ namespace TodoListApp.WebApp.Controllers
 
             // Count overdue tasks (not completed and past due date)
             var overdueCount = await _context.TodoTasks
-                .Where(t => t.TodoListId == id 
-                    && t.DueDate.HasValue 
-                    && t.DueDate.Value < DateTime.UtcNow 
+                .Where(t => t.TodoListId == id
+                    && t.DueDate.HasValue
+                    && t.DueDate.Value < DateTime.UtcNow
                     && t.Status != Models.TaskStatus.Completed)
                 .CountAsync();
 
@@ -139,32 +140,17 @@ namespace TodoListApp.WebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var originalList = await _context.TodoLists
+                    .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+                if (originalList == null)
                 {
-                    var originalList = await _context.TodoLists
-                        .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
-
-                    if (originalList == null)
-                    {
-                        return NotFound();
-                    }
-
-                    originalList.Title = todoList.Title;
-
-                    _context.Update(originalList);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.TodoLists.Any(e => e.Id == todoList.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                originalList.Title = todoList.Title;
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 

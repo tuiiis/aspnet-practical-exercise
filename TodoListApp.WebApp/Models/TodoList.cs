@@ -13,7 +13,7 @@ namespace TodoListApp.WebApp.Models
         public string Title { get; set; } = string.Empty;
 
         [Required]
-        public string OwnerId { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
 
         [ForeignKey(nameof(OwnerId))]
         public virtual ApplicationUser? Owner { get; set; }
