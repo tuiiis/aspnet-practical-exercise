@@ -12,7 +12,19 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h2 class="mb-2">@todoListTitle - Tasks</h2>
+        <div class="d-flex align-items-center mb-2">
+            <h2 class="mb-0 me-2" id="list-title-display">@todoListTitle - Tasks</h2>
+            <input type="text" id="list-title-input" class="form-control form-control-sm d-none" style="max-width: 400px; font-size: 1.5rem; font-weight: 500;" value="@todoListTitle" />
+            <button type="button" id="edit-title-btn" class="btn btn-sm p-1 border-0" style="background: none;" title="Edit List">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>
+            <form id="title-update-form" style="display: none;">
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
         <div class="mt-2">
             <span class="badge bg-warning me-2">Pending: @ViewData["PendingCount"]</span>
             <span class="badge bg-primary me-2">In Progress: @ViewData["InProgressCount"]</span>
@@ -139,6 +151,87 @@ else
                         window.location.href = href;
                     }
                 });
+            });
+
+            // Inline title editing
+            const editBtn = document.getElementById('edit-title-btn');
+            const titleDisplay = document.getElementById('list-title-display');
+            const titleInput = document.getElementById('list-title-input');
+            const todoListId = @todoListId;
+            const originalTitle = '@todoListTitle';
+
+            editBtn.addEventListener('click', function() {
+                titleDisplay.classList.add('d-none');
+                titleInput.classList.remove('d-none');
+                titleInput.focus();
+                titleInput.select();
+            });
+
+            function saveTitle() {
+                const newTitle = titleInput.value.trim();
+                if (newTitle === '' || newTitle === originalTitle) {
+                    cancelEdit();
+                    return;
+                }
+
+                // Get anti-forgery token
+                const token = document.querySelector('#title-update-form input[name="__RequestVerificationToken"]')?.value || '';
+
+                const formData = new FormData();
+                formData.append('id', todoListId);
+                formData.append('title', newTitle);
+                if (token) {
+                    formData.append('__RequestVerificationToken', token);
+                }
+
+                fetch('@Url.Action("UpdateTitle", "TodoLists")', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        titleDisplay.textContent = data.title + ' - Tasks';
+                        titleInput.value = data.title;
+                        titleDisplay.classList.remove('d-none');
+                        titleInput.classList.add('d-none');
+                        // Reload page to update the title in the URL and other places
+                        window.location.reload();
+                    } else {
+                        alert(data.message || 'Failed to update title');
+                        cancelEdit();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the title');
+                    cancelEdit();
+                });
+            }
+
+            function cancelEdit() {
+                titleInput.value = originalTitle;
+                titleDisplay.classList.remove('d-none');
+                titleInput.classList.add('d-none');
+            }
+
+            titleInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveTitle();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit();
+                }
+            });
+
+            titleInput.addEventListener('blur', function() {
+                // Save on blur if value changed
+                if (titleInput.value.trim() !== originalTitle && titleInput.value.trim() !== '') {
+                    saveTitle();
+                } else {
+                    cancelEdit();
+                }
             });
         });
     </script>

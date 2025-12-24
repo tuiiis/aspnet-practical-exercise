@@ -185,6 +185,32 @@ namespace TodoListApp.WebApp.Controllers
             return View(todoList);
         }
 
+        // POST: TodoLists/UpdateTitle/5 (AJAX endpoint for inline editing)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateTitle(int id, string title)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var todoList = await _context.TodoLists
+                .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+            if (todoList == null)
+            {
+                return Json(new { success = false, message = "List not found" });
+            }
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return Json(new { success = false, message = "Title cannot be empty" });
+            }
+
+            todoList.Title = title.Trim();
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, title = todoList.Title });
+        }
+
         // GET: TodoLists/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
