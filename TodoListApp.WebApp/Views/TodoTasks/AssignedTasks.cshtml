@@ -66,7 +66,7 @@ else
                 var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
                 var rowClass = isOverdue ? "table-danger" : "";
                 
-                <tr class="@rowClass">
+                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
                     <td>
                         @Html.DisplayFor(modelItem => item.Title)
                         @if (item.TodoList != null)
@@ -78,11 +78,11 @@ else
                             <span class="badge bg-danger ms-2">Overdue</span>
                         }
                     </td>
-                    <td>
-                        <form method="post" asp-action="UpdateStatus" class="d-inline">
+                    <td onclick="event.stopPropagation();">
+                        <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();">
                             <input type="hidden" name="id" value="@item.Id" />
                             @Html.AntiForgeryToken()
-                            <select name="status" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit()">
+                            <select name="status" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit(); event.stopPropagation();">
                                 <option value="Pending" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Pending ? "selected" : null)">Pending</option>
                                 <option value="InProgress" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.InProgress ? "selected" : null)">In Progress</option>
                                 <option value="Completed" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Completed ? "selected" : null)">Completed</option>
@@ -111,12 +111,27 @@ else
                             <span class="text-muted">No description</span>
                         }
                     </td>
-                    <td class="text-end" style="width: 1%; white-space: nowrap;">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm me-2">Details</a>
+                    <td class="text-end" style="width: 1%; white-space: nowrap;" onclick="event.stopPropagation();">
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.clickable-row');
+            rows.forEach(function(row) {
+                row.addEventListener('click', function(e) {
+                    const href = this.getAttribute('data-href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
 }
 

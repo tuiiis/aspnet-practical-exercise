@@ -352,7 +352,7 @@ namespace TodoListApp.WebApp.Controllers
         // POST: TodoTasks/UpdateStatus
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int id, Models.TaskStatus status)
+        public async Task<IActionResult> UpdateStatus(int id, Models.TaskStatus status, string? returnUrl)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
@@ -362,7 +362,7 @@ namespace TodoListApp.WebApp.Controllers
 
             var task = await _context.TodoTasks
                 .Include(t => t.TodoList)
-                .FirstOrDefaultAsync(t => t.Id == id && t.AssignedUserId == userId);
+                .FirstOrDefaultAsync(t => t.Id == id && (t.AssignedUserId == userId || t.TodoList!.OwnerId == userId));
 
             if (task == null)
             {
@@ -372,6 +372,11 @@ namespace TodoListApp.WebApp.Controllers
             task.Status = status;
             _context.Update(task);
             await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToAction(nameof(AssignedTasks));
         }

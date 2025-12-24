@@ -157,6 +157,19 @@ a[disabled]:hover,
   background-color: #333333 !important;
 }
 
+/* Clickable table rows */
+.table tbody tr.clickable-row {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr.clickable-row:hover {
+  background-color: #3a3a3a !important;
+}
+
+.table tbody tr.clickable-row:hover td {
+  background-color: #3a3a3a !important;
+}
+
 .table-striped > tbody > tr:nth-of-type(odd) > td,
 .table-striped > tbody > tr:nth-of-type(odd) > th {
   background-color: #2d2d2d !important;
@@ -492,4 +505,12 @@ textarea:not(.form-control)::placeholder {
   background-color: #7F6DF2;
   border-color: #7F6DF2;
   color: #ffffff;
+}
+
+/* Description list text wrapping */
+dl.row dd {
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
