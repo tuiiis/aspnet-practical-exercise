@@ -10,12 +10,20 @@
     var returnUrl = Url.Action("Index", "TodoTasks", new { todoListId = todoListId });
 }
 
-<h2>@todoListTitle - Tasks</h2>
-
-<p>
-    <a asp-action="Create" asp-route-todoListId="@todoListId" class="btn btn-primary btn-lg">Create New Task</a>
-    <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary btn-lg ms-2">Back to Lists</a>
-</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-2">@todoListTitle - Tasks</h2>
+        <div class="mt-2">
+            <span class="badge bg-warning me-2">Pending: @ViewData["PendingCount"]</span>
+            <span class="badge bg-primary me-2">In Progress: @ViewData["InProgressCount"]</span>
+            <span class="badge bg-success me-2">Completed: @ViewData["CompletedCount"]</span>
+            <span class="badge bg-danger">Overdue: @ViewData["OverdueCount"]</span>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Create" asp-route-todoListId="@todoListId" class="btn btn-primary btn-lg" style="font-size: 24px; line-height: 1;" title="Create New Task">+</a>
+    </div>
+</div>
 
 @if (!Model.Any())
 {

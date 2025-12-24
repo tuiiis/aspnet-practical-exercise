@@ -4,11 +4,20 @@
     ViewData["Title"] = "My To-do Lists";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary btn-lg">Create New List</a>
-</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-2">@ViewData["Title"]</h2>
+        <div class="mt-2">
+            <span class="badge bg-warning me-2">Pending: @ViewData["PendingCount"]</span>
+            <span class="badge bg-primary me-2">In Progress: @ViewData["InProgressCount"]</span>
+            <span class="badge bg-success me-2">Completed: @ViewData["CompletedCount"]</span>
+            <span class="badge bg-danger">Overdue: @ViewData["OverdueCount"]</span>
+        </div>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary btn-lg" style="font-size: 24px; line-height: 1;" title="Create New List">+</a>
+    </div>
+</div>
 
 <table class="table">
     <thead>
@@ -26,7 +35,6 @@
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
                 <td class="text-end">
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm me-2" onclick="event.stopPropagation();">Details</a>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm me-2" onclick="event.stopPropagation();">Edit</a>
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" onclick="event.stopPropagation();">Delete</a>
                 </td>

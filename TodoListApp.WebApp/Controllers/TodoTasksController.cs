@@ -46,9 +46,32 @@ namespace TodoListApp.WebApp.Controllers
                 .OrderBy(t => t.CreatedDate)
                 .ToListAsync();
 
+            // Count tasks by status
+            var taskCounts = await _context.TodoTasks
+                .Where(t => t.TodoListId == todoListId)
+                .GroupBy(t => t.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var pendingCount = taskCounts.FirstOrDefault(x => x.Status == Models.TaskStatus.Pending)?.Count ?? 0;
+            var inProgressCount = taskCounts.FirstOrDefault(x => x.Status == Models.TaskStatus.InProgress)?.Count ?? 0;
+            var completedCount = taskCounts.FirstOrDefault(x => x.Status == Models.TaskStatus.Completed)?.Count ?? 0;
+
+            // Count overdue tasks (not completed and past due date)
+            var overdueCount = await _context.TodoTasks
+                .Where(t => t.TodoListId == todoListId
+                    && t.DueDate.HasValue
+                    && t.DueDate.Value < DateTime.UtcNow
+                    && t.Status != Models.TaskStatus.Completed)
+                .CountAsync();
+
             ViewData["TodoListId"] = todoListId;
             ViewData["TodoListTitle"] = todoList.Title;
             ViewData["CurrentUserId"] = userId;
+            ViewData["PendingCount"] = pendingCount;
+            ViewData["InProgressCount"] = inProgressCount;
+            ViewData["CompletedCount"] = completedCount;
+            ViewData["OverdueCount"] = overdueCount;
 
             return View(tasks);
         }
