@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/TodoLists/Error");
     app.UseHsts();
 }
 
@@ -35,7 +35,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=TodoLists}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.MapRazorPages()
