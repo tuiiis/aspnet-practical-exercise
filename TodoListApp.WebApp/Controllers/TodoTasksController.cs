@@ -41,12 +41,14 @@ namespace TodoListApp.WebApp.Controllers
             }
 
             var tasks = await _context.TodoTasks
+                .Include(t => t.AssignedUser)
                 .Where(t => t.TodoListId == todoListId)
                 .OrderBy(t => t.CreatedDate)
                 .ToListAsync();
 
             ViewData["TodoListId"] = todoListId;
             ViewData["TodoListTitle"] = todoList.Title;
+            ViewData["CurrentUserId"] = userId;
 
             return View(tasks);
         }
@@ -64,6 +66,7 @@ namespace TodoListApp.WebApp.Controllers
             var todoTask = await _context.TodoTasks
                 .Include(t => t.TodoList)
                     .ThenInclude(tl => tl!.Owner)
+                .Include(t => t.AssignedUser)
                 .Include(t => t.Tags)
                 .Include(t => t.Comments)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -126,10 +129,12 @@ namespace TodoListApp.WebApp.Controllers
             ModelState.Remove("TodoList");
             ModelState.Remove("Tags");
             ModelState.Remove("Comments");
+            ModelState.Remove("AssignedUser");
 
             if (ModelState.IsValid)
             {
                 todoTask.CreatedDate = DateTime.UtcNow;
+                todoTask.AssignedUserId = userId; // Assign task to creator by default
                 // Convert local time to UTC for storage
                 if (todoTask.DueDate.HasValue)
                 {
@@ -296,6 +301,126 @@ namespace TodoListApp.WebApp.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index), new { todoListId = todoListId });
+        }
+
+        // GET: TodoTasks/AssignedTasks
+        public async Task<IActionResult> AssignedTasks(string? statusFilter, string? sortBy)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var query = _context.TodoTasks
+                .Include(t => t.TodoList)
+                .Include(t => t.AssignedUser)
+                .Where(t => t.AssignedUserId == userId);
+
+            // Default filter: show only active tasks (Pending or InProgress)
+            if (string.IsNullOrEmpty(statusFilter) || statusFilter == "Active")
+            {
+                query = query.Where(t => t.Status == Models.TaskStatus.Pending || t.Status == Models.TaskStatus.InProgress);
+            }
+            else if (statusFilter != "All")
+            {
+                if (Enum.TryParse<Models.TaskStatus>(statusFilter, out var status))
+                {
+                    query = query.Where(t => t.Status == status);
+                }
+            }
+
+            // Sorting
+            if (string.IsNullOrEmpty(sortBy) || sortBy == "DueDate")
+            {
+                query = query.OrderBy(t => t.DueDate.HasValue ? 0 : 1)
+                             .ThenBy(t => t.DueDate ?? DateTime.MaxValue);
+            }
+            else if (sortBy == "Title")
+            {
+                query = query.OrderBy(t => t.Title);
+            }
+
+            var tasks = await query.ToListAsync();
+
+            ViewData["StatusFilter"] = statusFilter ?? "Active";
+            ViewData["SortBy"] = sortBy ?? "DueDate";
+
+            return View(tasks);
+        }
+
+        // POST: TodoTasks/UpdateStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int id, Models.TaskStatus status)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _context.TodoTasks
+                .Include(t => t.TodoList)
+                .FirstOrDefaultAsync(t => t.Id == id && t.AssignedUserId == userId);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            task.Status = status;
+            _context.Update(task);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(AssignedTasks));
+        }
+
+        // POST: TodoTasks/ToggleAssignment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleAssignment(int id, string? returnUrl)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _context.TodoTasks
+                .Include(t => t.TodoList)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            // Verify the task belongs to a todo list owned by the user
+            if (task.TodoList?.OwnerId != userId)
+            {
+                return NotFound();
+            }
+
+            // Toggle assignment: if assigned to current user, unassign; otherwise assign
+            if (task.AssignedUserId == userId)
+            {
+                task.AssignedUserId = null;
+            }
+            else
+            {
+                task.AssignedUserId = userId;
+            }
+
+            _context.Update(task);
+            await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            return RedirectToAction(nameof(Index), new { todoListId = task.TodoListId });
         }
     }
 }

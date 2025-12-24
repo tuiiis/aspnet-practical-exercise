@@ -1,8 +1,12 @@
 @model TodoListApp.WebApp.Models.TodoTask
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Task Details";
     var isOverdue = Model.DueDate.HasValue && Model.DueDate.Value < DateTime.UtcNow && Model.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
+    var currentUserId = UserManager.GetUserId(User);
+    var returnUrl = Url.Action("Details", "TodoTasks", new { id = Model.Id });
 }
 
 <h2>Task Details</h2>
@@ -61,9 +65,39 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.TodoList!.Title)
         </dd>
+        <dt class="col-sm-2">
+            Assigned To
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.AssignedUserId == currentUserId)
+            {
+                <span class="text-success">Assigned to me</span>
+            }
+            else if (Model.AssignedUserId != null)
+            {
+                <span class="text-muted">Assigned to another user</span>
+            }
+            else
+            {
+                <span class="text-muted">Not assigned</span>
+            }
+        </dd>
     </dl>
 </div>
 <div>
+    <form method="post" asp-action="ToggleAssignment" class="d-inline me-2">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
+        @Html.AntiForgeryToken()
+        @if (Model.AssignedUserId == currentUserId)
+        {
+            <button type="submit" class="btn btn-outline-danger" title="Unassign from me">− Unassign</button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-outline-success" title="Assign to me">+ Assign to me</button>
+        }
+    </form>
     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
     <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Back to Tasks</a>
     <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary">Back to Lists</a>

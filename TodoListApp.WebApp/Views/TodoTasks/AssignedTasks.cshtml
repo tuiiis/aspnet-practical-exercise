@@ -1,0 +1,122 @@
+@model IEnumerable<TodoListApp.WebApp.Models.TodoTask>
+
+@{
+    ViewData["Title"] = "My Assigned Tasks";
+    var statusFilter = ViewData["StatusFilter"] as string ?? "Active";
+    var sortBy = ViewData["SortBy"] as string ?? "DueDate";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="get" asp-action="AssignedTasks" class="d-flex gap-2">
+            <div class="flex-grow-1">
+                <label for="statusFilter" class="form-label">Filter by Status:</label>
+                <select name="statusFilter" id="statusFilter" class="form-select" onchange="this.form.submit()">
+                    <option value="Active" selected="@(statusFilter == "Active" ? "selected" : null)">Active (Pending + In Progress)</option>
+                    <option value="All" selected="@(statusFilter == "All" ? "selected" : null)">All</option>
+                    <option value="Pending" selected="@(statusFilter == "Pending" ? "selected" : null)">Pending</option>
+                    <option value="InProgress" selected="@(statusFilter == "InProgress" ? "selected" : null)">In Progress</option>
+                    <option value="Completed" selected="@(statusFilter == "Completed" ? "selected" : null)">Completed</option>
+                </select>
+            </div>
+            <div class="flex-grow-1">
+                <label for="sortBy" class="form-label">Sort by:</label>
+                <select name="sortBy" id="sortBy" class="form-select" onchange="this.form.submit()">
+                    <option value="DueDate" selected="@(sortBy == "DueDate" ? "selected" : null)">Due Date</option>
+                    <option value="Title" selected="@(sortBy == "Title" ? "selected" : null)">Title</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<p>
+    <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary btn-lg">Back to Lists</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No assigned tasks found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Task
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Due Date
+                </th>
+                <th style="width: 30%;">
+                    Description
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
+                var rowClass = isOverdue ? "table-danger" : "";
+                
+                <tr class="@rowClass">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                        @if (item.TodoList != null)
+                        {
+                            <span class="text-muted ms-2">from @item.TodoList.Title</span>
+                        }
+                        @if (isOverdue)
+                        {
+                            <span class="badge bg-danger ms-2">Overdue</span>
+                        }
+                    </td>
+                    <td>
+                        <form method="post" asp-action="UpdateStatus" class="d-inline">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            @Html.AntiForgeryToken()
+                            <select name="status" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit()">
+                                <option value="Pending" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Pending ? "selected" : null)">Pending</option>
+                                <option value="InProgress" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.InProgress ? "selected" : null)">In Progress</option>
+                                <option value="Completed" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Completed ? "selected" : null)">Completed</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        @if (item.DueDate.HasValue)
+                        {
+                            @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
+                        }
+                        else
+                        {
+                            <span class="text-muted">No due date</span>
+                        }
+                    </td>
+                    <td style="max-width: 0;">
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <div class="text-truncate d-block" title="@item.Description" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                @item.Description
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No description</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm me-2">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

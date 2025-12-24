@@ -1,9 +1,13 @@
 @model IEnumerable<TodoListApp.WebApp.Models.TodoTask>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Tasks";
     var todoListId = ViewData["TodoListId"] as int?;
     var todoListTitle = ViewData["TodoListTitle"] as string ?? "Tasks";
+    var currentUserId = UserManager.GetUserId(User);
+    var returnUrl = Url.Action("Index", "TodoTasks", new { todoListId = todoListId });
 }
 
 <h2>@todoListTitle - Tasks</h2>
@@ -31,8 +35,8 @@ else
                 <th>
                     @Html.DisplayNameFor(model => model.DueDate)
                 </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.CreatedDate)
+                <th style="width: 30%;">
+                    @Html.DisplayNameFor(model => model.Description)
                 </th>
                 <th></th>
             </tr>
@@ -64,10 +68,32 @@ else
                             <span class="text-muted">No due date</span>
                         }
                     </td>
-                    <td>
-                        @item.CreatedDate.ToString("MM/dd/yyyy")
+                    <td style="max-width: 0;">
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <div class="text-truncate d-block" title="@item.Description" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                @item.Description
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No description</span>
+                        }
                     </td>
                     <td class="text-end">
+                        <form method="post" asp-action="ToggleAssignment" class="d-inline me-2">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                            @Html.AntiForgeryToken()
+                            @if (item.AssignedUserId == currentUserId)
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Unassign from me">−</button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Assign to me">+</button>
+                            }
+                        </form>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm me-2">Details</a>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm me-2">Edit</a>
                         <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
