@@ -99,8 +99,8 @@ namespace TodoListApp.WebApp.Controllers
                 return NotFound();
             }
 
-            // Verify the task belongs to a todo list owned by the user
-            if (todoTask.TodoList?.OwnerId != userId)
+            // Verify the task belongs to a todo list owned by the user or is assigned to the user
+            if (todoTask.TodoList?.OwnerId != userId && todoTask.AssignedUserId != userId)
             {
                 return NotFound();
             }
@@ -215,12 +215,12 @@ namespace TodoListApp.WebApp.Controllers
 
             var userId = _userManager.GetUserId(User);
 
-            // Verify the task belongs to a todo list owned by the user
+            // Verify the task belongs to a todo list owned by the user or is assigned to the user
             var originalTask = await _context.TodoTasks
                 .Include(t => t.TodoList)
                 .FirstOrDefaultAsync(t => t.Id == id);
 
-            if (originalTask == null || originalTask.TodoList?.OwnerId != userId)
+            if (originalTask == null || (originalTask.TodoList?.OwnerId != userId && originalTask.AssignedUserId != userId))
             {
                 return NotFound();
             }

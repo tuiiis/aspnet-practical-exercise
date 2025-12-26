@@ -7,87 +7,16 @@
     var isOverdue = Model.DueDate.HasValue && Model.DueDate.Value < DateTime.UtcNow && Model.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
     var currentUserId = UserManager.GetUserId(User);
     var returnUrl = Url.Action("Details", "TodoTasks", new { id = Model.Id });
+    var canEdit = Model.TodoList?.OwnerId == currentUserId || Model.AssignedUserId == currentUserId;
+    var localDueDate = Model.DueDate?.ToLocalTime();
+    var dueDateValue = localDueDate?.ToString("yyyy-MM-ddTHH:mm");
 }
 
-<h2>Task Details</h2>
-
-<div>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-            @if (isOverdue)
-            {
-                <span class="badge bg-danger ms-2">Overdue</span>
-            }
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10" style="word-wrap: break-word; word-break: break-word; white-space: normal;">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DueDate)
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.DueDate.HasValue)
-            {
-                @Model.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy HH:mm")
-                @if (isOverdue)
-                {
-                    <span class="text-danger ms-2">(Overdue)</span>
-                }
-            }
-            else
-            {
-                <span class="text-muted">No due date</span>
-            }
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Model.CreatedDate.ToString("MM/dd/yyyy HH:mm")
-        </dd>
-        <dt class="col-sm-2">
-            To-do List
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TodoList!.Title)
-        </dd>
-        <dt class="col-sm-2">
-            Assigned To
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.AssignedUserId == currentUserId)
-            {
-                <span class="text-success">Assigned to me</span>
-            }
-            else if (Model.AssignedUserId != null)
-            {
-                <span class="text-muted">Assigned to another user</span>
-            }
-            else
-            {
-                <span class="text-muted">Not assigned</span>
-            }
-        </dd>
-    </dl>
-</div>
-<div>
-    <form method="post" asp-action="ToggleAssignment" class="d-inline me-2">
+<div class="d-flex align-items-center mb-2">
+    <h2 class="mb-0 me-2">Task Details</h2>
+    <form method="post" asp-action="ToggleAssignment" class="d-inline">
         <input type="hidden" name="id" value="@Model.Id" />
-        <input type="hidden" name="returnUrl" value="@returnUrl" />
+        <input type="hidden" name="returnUrl" value="@Url.Action("Index", "TodoTasks", new { todoListId = Model.TodoListId })" />
         @Html.AntiForgeryToken()
         @if (Model.AssignedUserId == currentUserId)
         {
@@ -106,8 +35,134 @@
             </button>
         }
     </form>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
-    <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Back to Tasks</a>
-    <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary">Back to Lists</a>
 </div>
+<hr />
+
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="TodoListId" />
+    <input type="hidden" asp-for="CreatedDate" />
+    
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @if (canEdit)
+            {
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.Title)
+            }
+            @if (isOverdue)
+            {
+                <span class="badge bg-danger ms-2">Overdue</span>
+            }
+        </dd>
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10" style="word-wrap: break-word; word-break: break-word; white-space: normal;">
+            @if (canEdit)
+            {
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.Description)
+            }
+        </dd>
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd class="col-sm-10">
+            @if (canEdit)
+            {
+                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<TodoListApp.WebApp.Models.TaskStatus>()"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.Status)
+            }
+        </dd>
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DueDate)
+        </dt>
+        <dd class="col-sm-10">
+            @if (canEdit)
+            {
+                <input type="datetime-local" name="@Html.NameFor(m => m.DueDate)" id="@Html.IdFor(m => m.DueDate)" class="form-control" value="@dueDateValue" />
+                <span asp-validation-for="DueDate" class="text-danger"></span>
+            }
+            else
+            {
+                @if (Model.DueDate.HasValue)
+                {
+                    @Model.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy HH:mm")
+                    @if (isOverdue)
+                    {
+                        <span class="text-danger ms-2">(Overdue)</span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">No due date</span>
+                }
+            }
+        </dd>
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Model.CreatedDate.ToString("MM/dd/yyyy HH:mm")
+        </dd>
+        
+        <dt class="col-sm-2">
+            To-do List
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TodoList!.Title)
+        </dd>
+        
+        <dt class="col-sm-2">
+            Assigned To
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.AssignedUserId == currentUserId)
+            {
+                <span class="text-success">Assigned to me</span>
+            }
+            else if (Model.AssignedUserId != null)
+            {
+                <span class="text-muted">Assigned to another user</span>
+            }
+            else
+            {
+                <span class="text-muted">Not assigned</span>
+            }
+        </dd>
+    </dl>
+    
+    @if (canEdit)
+    {
+        <div class="mb-3">
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Cancel</a>
+        </div>
+    }
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
 
