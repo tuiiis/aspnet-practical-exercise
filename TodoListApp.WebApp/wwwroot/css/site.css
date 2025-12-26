@@ -514,3 +514,19 @@ dl.row dd {
   white-space: normal;
   overflow-wrap: break-word;
 }
+
+/* Status color coding for dropdowns */
+.form-select.status-pending {
+  border-color: #ffc107 !important;
+  color: #ffc107 !important;
+}
+
+.form-select.status-inprogress {
+  border-color: #0d6efd !important;
+  color: #0d6efd !important;
+}
+
+.form-select.status-completed {
+  border-color: #28a745 !important;
+  color: #28a745 !important;
+}

@@ -32,9 +32,6 @@
     </div>
 </div>
 
-<p>
-    <a asp-controller="TodoLists" asp-action="Index" class="btn btn-secondary btn-lg">Back to Lists</a>
-</p>
 
 @if (!Model.Any())
 {
@@ -82,7 +79,16 @@ else
                         <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();">
                             <input type="hidden" name="id" value="@item.Id" />
                             @Html.AntiForgeryToken()
-                            <select name="status" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit(); event.stopPropagation();">
+                            @{
+                                var statusClass = item.Status switch
+                                {
+                                    TodoListApp.WebApp.Models.TaskStatus.Pending => "status-pending",
+                                    TodoListApp.WebApp.Models.TaskStatus.InProgress => "status-inprogress",
+                                    TodoListApp.WebApp.Models.TaskStatus.Completed => "status-completed",
+                                    _ => ""
+                                };
+                            }
+                            <select name="status" class="form-select form-select-sm d-inline-block status-select @statusClass" style="width: auto;" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
                                 <option value="Pending" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Pending ? "selected" : null)">Pending</option>
                                 <option value="InProgress" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.InProgress ? "selected" : null)">In Progress</option>
                                 <option value="Completed" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Completed ? "selected" : null)">Completed</option>
@@ -121,6 +127,19 @@ else
 
 @section Scripts {
     <script>
+        function updateStatusColor(selectElement) {
+            const value = selectElement.value;
+            selectElement.classList.remove('status-pending', 'status-inprogress', 'status-completed');
+            
+            if (value === 'Pending') {
+                selectElement.classList.add('status-pending');
+            } else if (value === 'InProgress') {
+                selectElement.classList.add('status-inprogress');
+            } else if (value === 'Completed') {
+                selectElement.classList.add('status-completed');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const rows = document.querySelectorAll('.clickable-row');
             rows.forEach(function(row) {
@@ -130,6 +149,12 @@ else
                         window.location.href = href;
                     }
                 });
+            });
+
+            // Initialize status colors on page load
+            const statusSelects = document.querySelectorAll('.status-select');
+            statusSelects.forEach(function(select) {
+                updateStatusColor(select);
             });
         });
     </script>
