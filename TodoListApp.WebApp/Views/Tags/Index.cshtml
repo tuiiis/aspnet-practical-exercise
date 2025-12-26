@@ -1,0 +1,123 @@
+@model IEnumerable<TodoListApp.WebApp.Controllers.TagViewModel>
+
+@{
+    ViewData["Title"] = "All Tags";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="mb-3">
+    <label class="form-label">Create New Tag:</label>
+    <form id="createTagForm">
+        @Html.AntiForgeryToken()
+        <div class="d-flex gap-2">
+            <input type="text" id="newTagName" class="form-control" style="max-width: 300px;" placeholder="Enter tag name..." />
+            <button type="button" class="btn btn-primary" onclick="createTag()">Create Tag</button>
+        </div>
+        <div id="tagCreateMessage" class="mt-2"></div>
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No tags found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Tag Name
+                </th>
+                <th>
+                    Task Count
+                </th>
+                <th class="text-end">
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("TasksByTag", "Tags", new { id = item.Id })" class="tag-badge">@Html.DisplayFor(modelItem => item.Name)</a>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TaskCount)
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="TasksByTag" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">View Tasks</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm p-1 ms-2" title="Delete" style="line-height: 1;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script>
+        function createTag() {
+            const tagNameInput = document.getElementById('newTagName');
+            const messageDiv = document.getElementById('tagCreateMessage');
+            const tagName = tagNameInput.value.trim();
+            
+            if (!tagName) {
+                messageDiv.innerHTML = '<div class="text-danger small">Please enter a tag name</div>';
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const formData = new FormData();
+            formData.append('tagName', tagName);
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            messageDiv.innerHTML = '<div class="text-muted small">Creating tag...</div>';
+
+            fetch('@Url.Action("Create", "Tags")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.innerHTML = '<div class="text-success small">Tag created successfully!</div>';
+                    tagNameInput.value = '';
+                    // Reload page after a short delay to show the new tag
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    messageDiv.innerHTML = '<div class="text-danger small">' + (data.message || 'Failed to create tag') + '</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.innerHTML = '<div class="text-danger small">An error occurred while creating the tag</div>';
+            });
+        }
+
+        // Allow Enter key to create tag
+        document.addEventListener('DOMContentLoaded', function() {
+            const tagNameInput = document.getElementById('newTagName');
+            if (tagNameInput) {
+                tagNameInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        createTag();
+                    }
+                });
+            }
+        });
+    </script>
+}
+

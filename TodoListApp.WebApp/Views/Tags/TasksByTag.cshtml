@@ -1,0 +1,102 @@
+@model IEnumerable<TodoListApp.WebApp.Models.TodoTask>
+
+@{
+    ViewData["Title"] = "Tasks Tagged: " + (ViewData["TagName"] as string ?? "Unknown");
+    var tagName = ViewData["TagName"] as string ?? "Unknown";
+    var tagId = ViewData["TagId"] as int?;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No tasks found with this tag.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 150px; max-width: 150px;">
+                    Task
+                </th>
+                <th style="width: 70px; min-width: 70px; max-width: 70px;">
+                    Status
+                </th>
+                <th style="width: 110px; min-width: 110px; max-width: 110px;">
+                    Due Date
+                </th>
+                <th style="width: 30%;">
+                    Tags
+                </th>
+                <th>
+                    List
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
+                var rowClass = isOverdue ? "table-danger" : "";
+                
+                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
+                    <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        @Html.DisplayFor(modelItem => item.Title)
+                        @if (isOverdue)
+                        {
+                            <span class="badge bg-danger ms-2">Overdue</span>
+                        }
+                    </td>
+                    <td style="width: 70px; max-width: 70px;">
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td style="width: 110px; max-width: 110px;">
+                        @if (item.DueDate.HasValue)
+                        {
+                            @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
+                        }
+                    </td>
+                    <td style="max-width: 0;">
+                        @if (item.Tags != null && item.Tags.Any())
+                        {
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var tag in item.Tags)
+                                {
+                                    <a href="@Url.Action("TasksByTag", "Tags", new { id = tag.Id })" class="tag-badge" onclick="event.stopPropagation();">@tag.Name</a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No tags</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.TodoList != null)
+                        {
+                            <a href="@Url.Action("Index", "TodoTasks", new { todoListId = item.TodoList.Id })" onclick="event.stopPropagation();">@item.TodoList.Title</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.clickable-row');
+            rows.forEach(function(row) {
+                row.addEventListener('click', function(e) {
+                    const href = this.getAttribute('data-href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
+}
+

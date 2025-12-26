@@ -42,6 +42,7 @@ namespace TodoListApp.WebApp.Controllers
 
             var tasks = await _context.TodoTasks
                 .Include(t => t.AssignedUser)
+                .Include(t => t.Tags)
                 .Where(t => t.TodoListId == todoListId)
                 .OrderBy(t => t.CreatedDate)
                 .ToListAsync();
@@ -338,6 +339,7 @@ namespace TodoListApp.WebApp.Controllers
             var query = _context.TodoTasks
                 .Include(t => t.TodoList)
                 .Include(t => t.AssignedUser)
+                .Include(t => t.Tags)
                 .Where(t => t.AssignedUserId == userId);
 
             // Default filter: show only active tasks (Pending or InProgress)
@@ -452,7 +454,7 @@ namespace TodoListApp.WebApp.Controllers
         }
 
         // GET: TodoTasks/Search
-        public async Task<IActionResult> Search(string? searchTerm)
+        public async Task<IActionResult> Search(string? searchTerm, int[]? tagIds)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
@@ -464,6 +466,7 @@ namespace TodoListApp.WebApp.Controllers
                 .Include(t => t.TodoList)
                     .ThenInclude(tl => tl!.Owner)
                 .Include(t => t.AssignedUser)
+                .Include(t => t.Tags)
                 .Where(t => t.TodoList!.OwnerId == userId || t.AssignedUserId == userId);
 
             if (!string.IsNullOrEmpty(searchTerm))
@@ -471,16 +474,36 @@ namespace TodoListApp.WebApp.Controllers
                 query = query.Where(t => t.Title != null && t.Title.Contains(searchTerm));
             }
 
+            // Filter by tags (AND logic - task must have all selected tags)
+            if (tagIds != null && tagIds.Length > 0)
+            {
+                foreach (var tagId in tagIds)
+                {
+                    var currentTagId = tagId; // Capture for closure
+                    query = query.Where(t => t.Tags.Any(tag => tag.Id == currentTagId));
+                }
+            }
+
             var tasks = await query.OrderBy(t => t.CreatedDate).ToListAsync();
 
+            // Get all available tags for the user's tasks
+            var allTags = await _context.Tags
+                .Where(tag => _context.TodoTasks
+                    .Any(task => task.Tags.Any(t => t.Id == tag.Id) &&
+                                (task.TodoList!.OwnerId == userId || task.AssignedUserId == userId)))
+                .OrderBy(t => t.Name)
+                .ToListAsync();
+
             ViewData["SearchTerm"] = searchTerm;
+            ViewData["SelectedTagIds"] = tagIds ?? Array.Empty<int>();
+            ViewData["AllTags"] = allTags;
 
             return View(tasks);
         }
 
         // GET: TodoTasks/SearchJson
         [HttpGet]
-        public async Task<IActionResult> SearchJson(string? searchTerm)
+        public async Task<IActionResult> SearchJson(string? searchTerm, int[]? tagIds)
         {
             var userId = _userManager.GetUserId(User);
             if (userId == null)
@@ -491,11 +514,22 @@ namespace TodoListApp.WebApp.Controllers
             var query = _context.TodoTasks
                 .Include(t => t.TodoList)
                 .Include(t => t.AssignedUser)
+                .Include(t => t.Tags)
                 .Where(t => t.TodoList!.OwnerId == userId || t.AssignedUserId == userId);
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(t => t.Title != null && t.Title.Contains(searchTerm));
+            }
+
+            // Filter by tags (AND logic - task must have all selected tags)
+            if (tagIds != null && tagIds.Length > 0)
+            {
+                foreach (var tagId in tagIds)
+                {
+                    var currentTagId = tagId; // Capture for closure
+                    query = query.Where(t => t.Tags.Any(tag => tag.Id == currentTagId));
+                }
             }
 
             var tasks = await query
@@ -513,6 +547,120 @@ namespace TodoListApp.WebApp.Controllers
                 .ToListAsync();
 
             return Json(new { tasks });
+        }
+
+        // GET: TodoTasks/GetTagsJson
+        [HttpGet]
+        public async Task<IActionResult> GetTagsJson()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return Json(new { tags = new List<object>() });
+            }
+
+            // Return all tags, not just those associated with tasks
+            var tags = await _context.Tags
+                .OrderBy(t => t.Name)
+                .Select(t => new
+                {
+                    id = t.Id,
+                    name = t.Name
+                })
+                .ToListAsync();
+
+            return Json(new { tags });
+        }
+
+        // POST: TodoTasks/AddTag
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTag(int taskId, string tagName)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(tagName))
+            {
+                return Json(new { success = false, message = "Tag name cannot be empty" });
+            }
+
+            var task = await _context.TodoTasks
+                .Include(t => t.Tags)
+                .Include(t => t.TodoList)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+            {
+                return Json(new { success = false, message = "Task not found" });
+            }
+
+            // Verify user can edit the task
+            if (task.TodoList?.OwnerId != userId && task.AssignedUserId != userId)
+            {
+                return Json(new { success = false, message = "You don't have permission to edit this task" });
+            }
+
+            // Find or create tag (case-insensitive)
+            var normalizedTagName = tagName.Trim();
+            var tag = await _context.Tags
+                .FirstOrDefaultAsync(t => t.Name != null && t.Name.ToLower() == normalizedTagName.ToLower());
+
+            if (tag == null)
+            {
+                tag = new Tag { Name = normalizedTagName };
+                _context.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            // Check if tag is already associated with the task
+            if (!task.Tags.Any(t => t.Id == tag.Id))
+            {
+                task.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            return Json(new { success = true, tagId = tag.Id, tagName = tag.Name });
+        }
+
+        // POST: TodoTasks/RemoveTag
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveTag(int taskId, int tagId)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _context.TodoTasks
+                .Include(t => t.Tags)
+                .Include(t => t.TodoList)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+            {
+                return Json(new { success = false, message = "Task not found" });
+            }
+
+            // Verify user can edit the task
+            if (task.TodoList?.OwnerId != userId && task.AssignedUserId != userId)
+            {
+                return Json(new { success = false, message = "You don't have permission to edit this task" });
+            }
+
+            var tag = task.Tags.FirstOrDefault(t => t.Id == tagId);
+            if (tag != null)
+            {
+                task.Tags.Remove(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            return Json(new { success = true });
         }
     }
 }

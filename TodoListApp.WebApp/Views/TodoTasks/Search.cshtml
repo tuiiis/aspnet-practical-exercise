@@ -1,27 +1,55 @@
 @model IEnumerable<TodoListApp.WebApp.Models.TodoTask>
+@using TodoListApp.WebApp.Models
 
 @{
     ViewData["Title"] = "Search Tasks";
     var searchTerm = ViewData["SearchTerm"] as string ?? "";
+    var selectedTagIds = ViewData["SelectedTagIds"] as int[] ?? Array.Empty<int>();
+    var allTags = ViewData["AllTags"] as IEnumerable<Tag> ?? Enumerable.Empty<Tag>();
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <div class="row mb-3">
     <div class="col-md-12">
-        <form method="get" asp-action="Search" class="d-flex gap-2">
-            <div class="flex-grow-1">
+        <form method="get" asp-action="Search" id="searchForm">
+            <div class="mb-3">
                 <label for="searchTerm" class="form-label">Search by Title:</label>
-                <input type="text" name="searchTerm" id="searchTerm" class="form-control" value="@searchTerm" placeholder="Enter search term..." />
+                <div class="d-flex gap-2">
+                    <input type="text" name="searchTerm" id="searchTerm" class="form-control" value="@searchTerm" placeholder="Enter search term..." />
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
             </div>
-            <div class="d-flex align-items-end">
-                <button type="submit" class="btn btn-primary">Search</button>
+            <div class="mb-3">
+                <label class="form-label">Filter by Tags:</label>
+                <div class="d-flex flex-wrap gap-2" id="tagFilterContainer">
+                    @foreach (var tag in allTags)
+                    {
+                        var isSelected = selectedTagIds.Contains(tag.Id);
+                        <button type="button" 
+                                class="tag-filter-btn @(isSelected ? "tag-filter-selected" : "")" 
+                                data-tag-id="@tag.Id"
+                                onclick="toggleTag(@tag.Id)">
+                            @tag.Name
+                        </button>
+                    }
+                </div>
+                @if (!allTags.Any())
+                {
+                    <p class="text-muted small">No tags available. Create tasks with tags to filter by them.</p>
+                }
+            </div>
+            <div id="tagInputs">
+                @foreach (var tagId in selectedTagIds)
+                {
+                    <input type="hidden" name="tagIds" value="@tagId" />
+                }
             </div>
         </form>
     </div>
 </div>
 
-@if (!string.IsNullOrEmpty(searchTerm))
+@if (!string.IsNullOrEmpty(searchTerm) || (selectedTagIds != null && selectedTagIds.Length > 0))
 {
     @if (!Model.Any())
     {
@@ -35,14 +63,14 @@
                     <th style="width: 150px; max-width: 150px;">
                         Task
                     </th>
-                    <th>
+                    <th style="width: 70px; min-width: 70px; max-width: 70px;">
                         Status
                     </th>
                     <th style="width: 110px; min-width: 110px; max-width: 110px;">
                         Due Date
                     </th>
                     <th style="width: 30%;">
-                        Description
+                        Tags
                     </th>
                     <th>
                         List
@@ -63,7 +91,7 @@
                                 <span class="badge bg-danger ms-2">Overdue</span>
                             }
                         </td>
-                        <td>
+                        <td style="width: 70px; max-width: 70px;">
                             @Html.DisplayFor(modelItem => item.Status)
                         </td>
                         <td style="width: 110px; max-width: 110px;">
@@ -73,15 +101,18 @@
                             }
                         </td>
                         <td style="max-width: 0;">
-                            @if (!string.IsNullOrEmpty(item.Description))
+                            @if (item.Tags != null && item.Tags.Any())
                             {
-                                <div class="text-truncate d-block" title="@item.Description" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    @item.Description
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var tag in item.Tags)
+                                    {
+                                        <a href="@Url.Action("TasksByTag", "Tags", new { id = tag.Id })" class="tag-badge" onclick="event.stopPropagation();">@tag.Name</a>
+                                    }
                                 </div>
                             }
                             else
                             {
-                                <span class="text-muted">No description</span>
+                                <span class="text-muted">No tags</span>
                             }
                         </td>
                         <td>
@@ -99,6 +130,34 @@
 
 @section Scripts {
     <script>
+        let selectedTags = new Set(@Html.Raw(Json.Serialize(selectedTagIds)));
+
+        function toggleTag(tagId) {
+            const btn = document.querySelector(`[data-tag-id="${tagId}"]`);
+            if (selectedTags.has(tagId)) {
+                selectedTags.delete(tagId);
+                btn.classList.remove('tag-filter-selected');
+            } else {
+                selectedTags.add(tagId);
+                btn.classList.add('tag-filter-selected');
+            }
+            updateTagInputs();
+            // Auto-submit form when tags are toggled
+            document.getElementById('searchForm').submit();
+        }
+
+        function updateTagInputs() {
+            const container = document.getElementById('tagInputs');
+            container.innerHTML = '';
+            selectedTags.forEach(tagId => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'tagIds';
+                input.value = tagId;
+                container.appendChild(input);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const rows = document.querySelectorAll('.clickable-row');
             rows.forEach(function(row) {

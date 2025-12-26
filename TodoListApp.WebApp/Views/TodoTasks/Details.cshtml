@@ -147,6 +147,44 @@
                 <span class="text-muted">Not assigned</span>
             }
         </dd>
+        
+        <dt class="col-sm-2">
+            Tags
+        </dt>
+        <dd class="col-sm-10">
+            <div id="tagsContainer" class="d-flex flex-wrap gap-1 mb-2">
+                @if (Model.Tags != null && Model.Tags.Any())
+                {
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <span class="tag-badge" data-tag-id="@tag.Id">
+                            <a href="@Url.Action("TasksByTag", "Tags", new { id = tag.Id })" style="color: inherit; text-decoration: none;">@tag.Name</a>
+                            @if (canEdit)
+                            {
+                                <button type="button" class="btn-close btn-close-white tag-remove-btn" aria-label="Remove tag" onclick="removeTag(@Model.Id, @tag.Id); event.stopPropagation();" style="font-size: 0.7em; margin-left: 4px;"></button>
+                            }
+                        </span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">No tags</span>
+                }
+            </div>
+            @if (canEdit)
+            {
+                <div class="mb-2">
+                    <label class="form-label small mb-1">Available Tags:</label>
+                    <div id="availableTagsContainer" class="d-flex flex-wrap gap-1 mb-2" style="min-height: 30px;">
+                        <div class="text-muted small">Loading tags...</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <input type="text" id="newTagName" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Enter tag name..." />
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addTag(@Model.Id)">Add Tag</button>
+                </div>
+            }
+        </dd>
     </dl>
     
     @if (canEdit)
@@ -160,5 +198,260 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function addTag(taskId) {
+            const tagNameInput = document.getElementById('newTagName');
+            const tagName = tagNameInput.value.trim();
+            
+            if (!tagName) {
+                alert('Please enter a tag name');
+                return;
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const formData = new FormData();
+            formData.append('taskId', taskId);
+            formData.append('tagName', tagName);
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            fetch('@Url.Action("AddTag", "TodoTasks")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById('tagsContainer');
+                    const noTagsMsg = container.querySelector('.text-muted');
+                    if (noTagsMsg) {
+                        noTagsMsg.remove();
+                    }
+                    
+                    const tagBadge = document.createElement('span');
+                    tagBadge.className = 'tag-badge';
+                    tagBadge.setAttribute('data-tag-id', data.tagId);
+                    const tagLink = document.createElement('a');
+                    tagLink.href = '/Tags/TasksByTag/' + data.tagId;
+                    tagLink.style.cssText = 'color: inherit; text-decoration: none;';
+                    tagLink.textContent = data.tagName;
+                    tagBadge.appendChild(tagLink);
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn-close btn-close-white tag-remove-btn';
+                    removeBtn.setAttribute('aria-label', 'Remove tag');
+                    removeBtn.style.cssText = 'font-size: 0.7em; margin-left: 4px;';
+                    removeBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        removeTag(taskId, data.tagId);
+                    };
+                    tagBadge.appendChild(removeBtn);
+                    container.appendChild(tagBadge);
+                    
+                    // Add to current task tags
+                    currentTaskTagIds.add(data.tagId);
+                    
+                    // Update available tags list
+                    renderAvailableTags();
+                    
+                    tagNameInput.value = '';
+                } else {
+                    alert(data.message || 'Failed to add tag');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the tag');
+            });
+        }
+
+        function removeTag(taskId, tagId) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const formData = new FormData();
+            formData.append('taskId', taskId);
+            formData.append('tagId', tagId);
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            fetch('@Url.Action("RemoveTag", "TodoTasks")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove from current task tags
+                    currentTaskTagIds.delete(tagId);
+                    
+                    const tagBadge = document.querySelector(`[data-tag-id="${tagId}"]`);
+                    if (tagBadge) {
+                        tagBadge.remove();
+                    }
+                    
+                    const container = document.getElementById('tagsContainer');
+                    if (container.children.length === 0) {
+                        const noTagsMsg = document.createElement('span');
+                        noTagsMsg.className = 'text-muted';
+                        noTagsMsg.textContent = 'No tags';
+                        container.appendChild(noTagsMsg);
+                    }
+                    
+                    // Update available tags list
+                    renderAvailableTags();
+                } else {
+                    alert(data.message || 'Failed to remove tag');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while removing the tag');
+            });
+        }
+
+        let allAvailableTags = [];
+        let currentTaskTagIds = new Set();
+
+        // Initialize current task tag IDs from existing tags
+        function initializeCurrentTags() {
+            const existingTags = document.querySelectorAll('#tagsContainer [data-tag-id]');
+            existingTags.forEach(function(tagElement) {
+                const tagId = parseInt(tagElement.getAttribute('data-tag-id'));
+                if (!isNaN(tagId)) {
+                    currentTaskTagIds.add(tagId);
+                }
+            });
+        }
+
+        function loadAvailableTags() {
+            fetch('@Url.Action("GetTagsJson", "TodoTasks")')
+                .then(response => response.json())
+                .then(data => {
+                    allAvailableTags = data.tags || [];
+                    renderAvailableTags();
+                })
+                .catch(error => {
+                    console.error('Error loading tags:', error);
+                    const container = document.getElementById('availableTagsContainer');
+                    if (container) {
+                        container.innerHTML = '<div class="text-muted small">Error loading tags.</div>';
+                    }
+                });
+        }
+
+        function renderAvailableTags() {
+            const container = document.getElementById('availableTagsContainer');
+            if (!container) return;
+
+            // Filter out tags that are already on the task
+            const availableTags = allAvailableTags.filter(tag => !currentTaskTagIds.has(tag.id));
+
+            if (availableTags.length === 0) {
+                container.innerHTML = '<div class="text-muted small">No available tags. Create a new tag using the input below.</div>';
+                return;
+            }
+
+            let html = '';
+            availableTags.forEach(function(tag) {
+                html += `<button type="button" 
+                    class="tag-badge tag-add-btn" 
+                    data-tag-id="${tag.id}"
+                    data-tag-name="${escapeHtml(tag.name)}"
+                    onclick="addTagById(@Model.Id, ${tag.id}, '${escapeHtml(tag.name)}')"
+                    title="Click to add tag">
+                    <span style="margin-right: 4px;">+</span>${escapeHtml(tag.name)}
+                </button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function addTagById(taskId, tagId, tagName) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            const formData = new FormData();
+            formData.append('taskId', taskId);
+            formData.append('tagName', tagName);
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            fetch('@Url.Action("AddTag", "TodoTasks")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add to current task tags
+                    currentTaskTagIds.add(tagId);
+                    
+                    // Update the tags container
+                    const container = document.getElementById('tagsContainer');
+                    const noTagsMsg = container.querySelector('.text-muted');
+                    if (noTagsMsg) {
+                        noTagsMsg.remove();
+                    }
+                    
+                    const tagBadge = document.createElement('span');
+                    tagBadge.className = 'tag-badge';
+                    tagBadge.setAttribute('data-tag-id', data.tagId);
+                    const tagLink = document.createElement('a');
+                    tagLink.href = '/Tags/TasksByTag/' + data.tagId;
+                    tagLink.style.cssText = 'color: inherit; text-decoration: none;';
+                    tagLink.textContent = data.tagName;
+                    tagBadge.appendChild(tagLink);
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn-close btn-close-white tag-remove-btn';
+                    removeBtn.setAttribute('aria-label', 'Remove tag');
+                    removeBtn.style.cssText = 'font-size: 0.7em; margin-left: 4px;';
+                    removeBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        removeTag(taskId, data.tagId);
+                    };
+                    tagBadge.appendChild(removeBtn);
+                    container.appendChild(tagBadge);
+                    
+                    // Update available tags list
+                    renderAvailableTags();
+                } else {
+                    alert(data.message || 'Failed to add tag');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the tag');
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow Enter key to add tag
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize current tags
+            initializeCurrentTags();
+            
+            const tagNameInput = document.getElementById('newTagName');
+            if (tagNameInput) {
+                tagNameInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag(@Model.Id);
+                    }
+                });
+            }
+
+            // Load available tags
+            @if (canEdit)
+            {
+                <text>loadAvailableTags();</text>
+            }
+        });
+    </script>
 }
 

@@ -369,6 +369,32 @@ textarea:not(.form-control)::placeholder {
   border-color: #b21f2d;
 }
 
+/* Outline Danger Button - No background, red border and text */
+.btn-outline-danger {
+  background-color: transparent;
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+  background-color: transparent;
+  border-color: #c82333;
+  color: #c82333;
+}
+
+.btn-outline-danger:focus, .btn-outline-danger:active:focus {
+  background-color: transparent;
+  border-color: #dc3545;
+  color: #dc3545;
+  box-shadow: 0 0 0 0.1rem #282828, 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
+}
+
+.btn-outline-danger:active {
+  background-color: transparent;
+  border-color: #bd2130;
+  color: #bd2130;
+}
+
 /* Footer - Dark Theme */
 .footer {
   background-color: #333333;
@@ -534,4 +560,93 @@ dl.row dd {
 /* Hide dropdown arrow for search dropdown */
 #searchDropdown::after {
   display: none !important;
+}
+
+/* Tag badges - Grey button styling */
+.tag-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #e0e0e0;
+  background-color: #555555;
+  border: 1px solid #666666;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  vertical-align: middle;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tag-badge:hover {
+  background-color: #666666;
+  border-color: #777777;
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+/* Tag badge as link */
+a.tag-badge {
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+a.tag-badge:hover {
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+/* Tag filter buttons in search */
+.tag-filter-btn {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #e0e0e0;
+  background-color: #555555;
+  border: 1px solid #666666;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-filter-btn:hover {
+  background-color: #666666;
+  border-color: #777777;
+  color: #ffffff;
+}
+
+.tag-filter-selected {
+  background-color: #7F6DF2 !important;
+  border-color: #7F6DF2 !important;
+  color: #ffffff !important;
+}
+
+.tag-filter-selected:hover {
+  background-color: #9B8DF5 !important;
+  border-color: #9B8DF5 !important;
+}
+
+/* Tag remove button */
+.tag-remove-btn {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.tag-remove-btn:hover {
+  opacity: 1;
+}
+
+/* Tag add button (with plus symbol) */
+.tag-add-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-add-btn:hover {
+  background-color: #7F6DF2 !important;
+  border-color: #7F6DF2 !important;
+  transform: scale(1.05);
 }

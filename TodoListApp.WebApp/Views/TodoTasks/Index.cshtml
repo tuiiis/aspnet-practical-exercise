@@ -49,14 +49,14 @@ else
                 <th style="width: 150px; max-width: 150px;">
                     @Html.DisplayNameFor(model => model.Title)
                 </th>
-                <th style="width: 130px; min-width: 130px; max-width: 130px;">
+                <th style="width: 70px; min-width: 70px; max-width: 70px;">
                     @Html.DisplayNameFor(model => model.Status)
                 </th>
                 <th style="width: 110px; min-width: 110px; max-width: 110px;">
                     @Html.DisplayNameFor(model => model.DueDate)
                 </th>
                 <th style="width: 30%;">
-                    @Html.DisplayNameFor(model => model.Description)
+                    Tags
                 </th>
                 <th style="width: 1%; white-space: nowrap;"></th>
             </tr>
@@ -75,7 +75,7 @@ else
                             <span class="badge bg-danger ms-2">Overdue</span>
                         }
                     </td>
-                    <td onclick="event.stopPropagation();" style="width: 130px; max-width: 130px; padding: 0.375rem;">
+                    <td onclick="event.stopPropagation();" style="width: 70px; max-width: 70px; padding: 0.375rem;">
                         <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();" style="width: 100%; margin: 0; padding: 0;">
                             <input type="hidden" name="id" value="@item.Id" />
                             <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -103,15 +103,18 @@ else
                         }
                     </td>
                     <td style="max-width: 0;">
-                        @if (!string.IsNullOrEmpty(item.Description))
+                        @if (item.Tags != null && item.Tags.Any())
                         {
-                            <div class="text-truncate d-block" title="@item.Description" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                @item.Description
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var tag in item.Tags)
+                                {
+                                    <a href="@Url.Action("TasksByTag", "Tags", new { id = tag.Id })" class="tag-badge" onclick="event.stopPropagation();">@tag.Name</a>
+                                }
                             </div>
                         }
                         else
                         {
-                            <span class="text-muted">No description</span>
+                            <span class="text-muted">No tags</span>
                         }
                     </td>
                     <td class="text-end" style="width: 1%; white-space: nowrap;" onclick="event.stopPropagation();">
@@ -136,8 +139,8 @@ else
                                 </button>
                             }
                         </form>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm p-1" onclick="event.stopPropagation();" title="Delete" style="line-height: 1;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm p-1" onclick="event.stopPropagation();" title="Delete" style="line-height: 1;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>

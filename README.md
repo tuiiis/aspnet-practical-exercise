@@ -48,13 +48,13 @@ Here are some hints for you:
 | EP03 | US12       | Filter tasks in my assigned task list.                                          | ✅            |
 | EP03 | US13       | Sort tasks in my assigned task list.                                            | ✅            |
 | EP03 | US14       | Change the status of a task from the list of assigned tasks.                    | ✅            |
-| EP04 | US15       | Search for tasks with specified text in the task title.                         |               |
-| EP04 | US16       | Highlight tasks that are overdue on the search result page.                     |               |
-| EP05 | US17       | View a list of tags on the task details page.                                   |               |
-| EP05 | US18       | View a list of all tags.                                                        |               |
-| EP05 | US19       | View a list of tasks tagged by a specific tag.                                  |               |
-| EP05 | US20       | Add a tag to a task.                                                            |               |
-| EP05 | US21       | Remove a tag that is added to a task.                                           |               |
+| EP04 | US15       | Search for tasks with specified text in the task title.                         | ✅            |
+| EP04 | US16       | Highlight tasks that are overdue on the search result page.                     | ✅            |
+| EP05 | US17       | View a list of tags on the task details page.                                   | ✅            |
+| EP05 | US18       | View a list of all tags.                                                        | ✅            |
+| EP05 | US19       | View a list of tasks tagged by a specific tag.                                  | ✅            |
+| EP05 | US20       | Add a tag to a task.                                                            | ✅            |
+| EP05 | US21       | Remove a tag that is added to a task.                                           | ✅            |
 | EP06 | US22       | View the comments on the task details page.                                     |               |
 | EP06 | US23       | Add a new comment to the task.                                                  |               |
 | EP06 | US24       | Delete a comment that is added to a task.                                       |               |
