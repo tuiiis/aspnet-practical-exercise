@@ -42,13 +42,13 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>
+                <th style="width: 150px; max-width: 150px;">
                     Task
                 </th>
-                <th>
+                <th style="width: 130px; min-width: 130px; max-width: 130px;">
                     Status
                 </th>
-                <th>
+                <th style="width: 110px; min-width: 110px; max-width: 110px;">
                     Due Date
                 </th>
                 <th style="width: 30%;">
@@ -64,7 +64,7 @@ else
                 var rowClass = isOverdue ? "table-danger" : "";
                 
                 <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
-                    <td>
+                    <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         @Html.DisplayFor(modelItem => item.Title)
                         @if (item.TodoList != null)
                         {
@@ -75,8 +75,8 @@ else
                             <span class="badge bg-danger ms-2">Overdue</span>
                         }
                     </td>
-                    <td onclick="event.stopPropagation();">
-                        <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();">
+                    <td onclick="event.stopPropagation();" style="width: 130px; max-width: 130px; padding: 0.375rem;">
+                        <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();" style="width: 100%; margin: 0; padding: 0;">
                             <input type="hidden" name="id" value="@item.Id" />
                             @Html.AntiForgeryToken()
                             @{
@@ -88,21 +88,17 @@ else
                                     _ => ""
                                 };
                             }
-                            <select name="status" class="form-select form-select-sm d-inline-block status-select @statusClass" style="width: auto;" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
+                            <select name="status" class="form-select form-select-sm status-select @statusClass" style="width: 100%; max-width: 100%; font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
                                 <option value="Pending" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Pending ? "selected" : null)">Pending</option>
                                 <option value="InProgress" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.InProgress ? "selected" : null)">In Progress</option>
                                 <option value="Completed" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Completed ? "selected" : null)">Completed</option>
                             </select>
                         </form>
                     </td>
-                    <td>
+                    <td style="width: 110px; max-width: 110px;">
                         @if (item.DueDate.HasValue)
                         {
                             @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
-                        }
-                        else
-                        {
-                            <span class="text-muted">No due date</span>
                         }
                     </td>
                     <td style="max-width: 0;">

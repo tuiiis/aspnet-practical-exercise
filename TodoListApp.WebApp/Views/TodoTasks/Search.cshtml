@@ -32,13 +32,13 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>
+                    <th style="width: 150px; max-width: 150px;">
                         Task
                     </th>
                     <th>
                         Status
                     </th>
-                    <th>
+                    <th style="width: 110px; min-width: 110px; max-width: 110px;">
                         Due Date
                     </th>
                     <th style="width: 30%;">
@@ -56,7 +56,7 @@
                     var rowClass = isOverdue ? "table-danger" : "";
                     
                     <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
-                        <td>
+                        <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             @Html.DisplayFor(modelItem => item.Title)
                             @if (isOverdue)
                             {
@@ -66,14 +66,10 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Status)
                         </td>
-                        <td>
+                        <td style="width: 110px; max-width: 110px;">
                             @if (item.DueDate.HasValue)
                             {
                                 @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
-                            }
-                            else
-                            {
-                                <span class="text-muted">No due date</span>
                             }
                         </td>
                         <td style="max-width: 0;">
