@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Task";
+    var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
 <h2>Edit Task</h2>
@@ -13,6 +14,10 @@
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="TodoListId" />
             <input type="hidden" asp-for="CreatedDate" />
+            @if (!string.IsNullOrEmpty(returnUrl))
+            {
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+            }
             
             <div class="form-group mb-3">
                 <label asp-for="Title" class="control-label"></label>
@@ -44,7 +49,14 @@
             
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
-                <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Cancel</a>
+                @if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    <a href="@returnUrl" class="btn btn-secondary">Cancel</a>
+                }
+                else
+                {
+                    <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Cancel</a>
+                }
             </div>
         </form>
     </div>

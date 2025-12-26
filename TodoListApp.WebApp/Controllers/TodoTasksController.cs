@@ -78,7 +78,7 @@ namespace TodoListApp.WebApp.Controllers
         }
 
         // GET: TodoTasks/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, string? returnUrl)
         {
             if (id == null)
             {
@@ -106,11 +106,13 @@ namespace TodoListApp.WebApp.Controllers
                 return NotFound();
             }
 
+            ViewData["ReturnUrl"] = returnUrl;
+
             return View(todoTask);
         }
 
         // GET: TodoTasks/Create
-        public async Task<IActionResult> Create(int? todoListId)
+        public async Task<IActionResult> Create(int? todoListId, string? returnUrl)
         {
             if (todoListId == null)
             {
@@ -130,6 +132,7 @@ namespace TodoListApp.WebApp.Controllers
 
             ViewData["TodoListId"] = todoListId;
             ViewData["TodoListTitle"] = todoList.Title;
+            ViewData["ReturnUrl"] = returnUrl;
 
             return View();
         }
@@ -137,7 +140,7 @@ namespace TodoListApp.WebApp.Controllers
         // POST: TodoTasks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,Status,DueDate,TodoListId")] TodoTask todoTask)
+        public async Task<IActionResult> Create([Bind("Title,Description,Status,DueDate,TodoListId")] TodoTask todoTask, string? returnUrl)
         {
             var userId = _userManager.GetUserId(User);
 
@@ -167,17 +170,24 @@ namespace TodoListApp.WebApp.Controllers
                 }
                 _context.Add(todoTask);
                 await _context.SaveChangesAsync();
+                
+                if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                
                 return RedirectToAction(nameof(Index), new { todoListId = todoTask.TodoListId });
             }
 
             ViewData["TodoListId"] = todoTask.TodoListId;
             ViewData["TodoListTitle"] = todoList.Title;
+            ViewData["ReturnUrl"] = returnUrl;
 
             return View(todoTask);
         }
 
         // GET: TodoTasks/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string? returnUrl)
         {
             if (id == null)
             {
@@ -201,13 +211,15 @@ namespace TodoListApp.WebApp.Controllers
                 return NotFound();
             }
 
+            ViewData["ReturnUrl"] = returnUrl;
+
             return View(todoTask);
         }
 
         // POST: TodoTasks/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,DueDate,TodoListId,CreatedDate")] TodoTask todoTask)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Status,DueDate,TodoListId,CreatedDate")] TodoTask todoTask, string? returnUrl)
         {
             if (id != todoTask.Id)
             {
@@ -263,8 +275,16 @@ namespace TodoListApp.WebApp.Controllers
                         throw;
                     }
                 }
+                
+                if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                
                 return RedirectToAction(nameof(Index), new { todoListId = originalTask.TodoListId });
             }
+
+            ViewData["ReturnUrl"] = returnUrl;
 
             return View(todoTask);
         }

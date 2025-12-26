@@ -6,7 +6,7 @@
     ViewData["Title"] = "Task Details";
     var isOverdue = Model.DueDate.HasValue && Model.DueDate.Value < DateTime.UtcNow && Model.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
     var currentUserId = UserManager.GetUserId(User);
-    var returnUrl = Url.Action("Details", "TodoTasks", new { id = Model.Id });
+    var returnUrl = ViewData["ReturnUrl"] as string ?? Url.Action("Details", "TodoTasks", new { id = Model.Id });
     var canEdit = Model.TodoList?.OwnerId == currentUserId || Model.AssignedUserId == currentUserId;
     var localDueDate = Model.DueDate?.ToLocalTime();
     var dueDateValue = localDueDate?.ToString("yyyy-MM-ddTHH:mm");
@@ -21,7 +21,7 @@
         @if (Model.AssignedUserId == currentUserId)
         {
             <button type="submit" class="btn btn-sm p-1 border-0" title="Unassign from me" style="background: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#999999" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                 </svg>
             </button>
@@ -29,7 +29,7 @@
         else
         {
             <button type="submit" class="btn btn-sm p-1 border-0" title="Assign to me" style="background: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0e0e0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                 </svg>
             </button>
@@ -43,6 +43,10 @@
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="TodoListId" />
     <input type="hidden" asp-for="CreatedDate" />
+    @if (!string.IsNullOrEmpty(returnUrl))
+    {
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
+    }
     
     <dl class="row">
         <dt class="col-sm-2">
@@ -191,7 +195,14 @@
     {
         <div class="mb-3">
             <input type="submit" value="Save" class="btn btn-primary" />
-            <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Cancel</a>
+            @if (!string.IsNullOrEmpty(returnUrl) && returnUrl != Url.Action("Details", "TodoTasks", new { id = Model.Id }))
+            {
+                <a href="@returnUrl" class="btn btn-secondary">Cancel</a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-route-todoListId="@Model.TodoListId" class="btn btn-secondary">Cancel</a>
+            }
         </div>
     }
 </form>

@@ -62,8 +62,9 @@ else
             {
                 var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
                 var rowClass = isOverdue ? "table-danger" : "";
+                var assignedTasksReturnUrl = Url.Action("AssignedTasks", "TodoTasks");
                 
-                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
+                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id, returnUrl = assignedTasksReturnUrl })" style="cursor: pointer;">
                     <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         @Html.DisplayFor(modelItem => item.Title)
                         @if (item.TodoList != null)
