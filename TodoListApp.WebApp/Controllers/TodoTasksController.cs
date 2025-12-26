@@ -92,6 +92,8 @@ namespace TodoListApp.WebApp.Controllers
                     .ThenInclude(tl => tl!.Owner)
                 .Include(t => t.AssignedUser)
                 .Include(t => t.Tags)
+                .Include(t => t.Comments)
+                    .ThenInclude(c => c.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (todoTask == null)
@@ -179,36 +181,6 @@ namespace TodoListApp.WebApp.Controllers
 
             ViewData["TodoListId"] = todoTask.TodoListId;
             ViewData["TodoListTitle"] = todoList.Title;
-            ViewData["ReturnUrl"] = returnUrl;
-
-            return View(todoTask);
-        }
-
-        // GET: TodoTasks/Edit/5
-        public async Task<IActionResult> Edit(int? id, string? returnUrl)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var userId = _userManager.GetUserId(User);
-
-            var todoTask = await _context.TodoTasks
-                .Include(t => t.TodoList)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (todoTask == null)
-            {
-                return NotFound();
-            }
-
-            // Verify the task belongs to a todo list owned by the user
-            if (todoTask.TodoList?.OwnerId != userId)
-            {
-                return NotFound();
-            }
-
             ViewData["ReturnUrl"] = returnUrl;
 
             return View(todoTask);
@@ -678,6 +650,154 @@ namespace TodoListApp.WebApp.Controllers
             }
 
             return Json(new { success = true });
+        }
+
+        // POST: TodoTasks/CreateComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateComment(int taskId, string content, string? returnUrl)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return RedirectToAction(nameof(Details), new { id = taskId, returnUrl });
+            }
+
+            var task = await _context.TodoTasks
+                .Include(t => t.TodoList)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            // Verify user has permission (owner or assigned user)
+            if (task.TodoList?.OwnerId != userId && task.AssignedUserId != userId)
+            {
+                return NotFound();
+            }
+
+            var comment = new Comment
+            {
+                Content = content.Trim(),
+                TodoTaskId = taskId,
+                AuthorId = userId,
+                PostedDate = DateTime.UtcNow
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return RedirectToAction(nameof(Details), new { id = taskId, returnUrl });
+            }
+
+            return RedirectToAction(nameof(Details), new { id = taskId });
+        }
+
+        // POST: TodoTasks/EditComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditComment(int commentId, string content, string? returnUrl)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                var comment = await _context.Comments
+                    .Include(c => c.TodoTask)
+                    .FirstOrDefaultAsync(c => c.Id == commentId);
+                
+                if (comment?.TodoTask != null)
+                {
+                    if (!string.IsNullOrEmpty(returnUrl))
+                    {
+                        return RedirectToAction(nameof(Details), new { id = comment.TodoTask.Id, returnUrl });
+                    }
+                    return RedirectToAction(nameof(Details), new { id = comment.TodoTask.Id });
+                }
+                return NotFound();
+            }
+
+            var commentToEdit = await _context.Comments
+                .Include(c => c.TodoTask)
+                .FirstOrDefaultAsync(c => c.Id == commentId);
+
+            if (commentToEdit == null)
+            {
+                return NotFound();
+            }
+
+            // Verify user is the comment author
+            if (commentToEdit.AuthorId != userId)
+            {
+                return NotFound();
+            }
+
+            commentToEdit.Content = content.Trim();
+            _context.Update(commentToEdit);
+            await _context.SaveChangesAsync();
+
+            if (commentToEdit.TodoTask != null)
+            {
+                if (!string.IsNullOrEmpty(returnUrl))
+                {
+                    return RedirectToAction(nameof(Details), new { id = commentToEdit.TodoTask.Id, returnUrl });
+                }
+                return RedirectToAction(nameof(Details), new { id = commentToEdit.TodoTask.Id });
+            }
+
+            return NotFound();
+        }
+
+        // POST: TodoTasks/DeleteComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteComment(int commentId, string? returnUrl)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var comment = await _context.Comments
+                .Include(c => c.TodoTask)
+                    .ThenInclude(t => t!.TodoList)
+                .FirstOrDefaultAsync(c => c.Id == commentId);
+
+            if (comment == null || comment.TodoTask == null)
+            {
+                return NotFound();
+            }
+
+            // Verify user is the comment author or task owner
+            if (comment.AuthorId != userId && comment.TodoTask.TodoList?.OwnerId != userId)
+            {
+                return NotFound();
+            }
+
+            var taskId = comment.TodoTask.Id;
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return RedirectToAction(nameof(Details), new { id = taskId, returnUrl });
+            }
+
+            return RedirectToAction(nameof(Details), new { id = taskId });
         }
     }
 }

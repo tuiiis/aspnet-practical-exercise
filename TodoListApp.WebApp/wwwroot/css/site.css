@@ -881,3 +881,106 @@ button.tag-badge:hover {
 .form-control-max-width {
   max-width: 200px;
 }
+
+/* Comments Section - Social Media Style */
+.comments-container {
+  margin-top: 1rem;
+}
+
+.comment-item {
+  background-color: #333333;
+  border: 1px solid #444444;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.comment-item:hover {
+  background-color: #3a3a3a;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #444444;
+}
+
+.comment-author {
+  color: #7F6DF2;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.comment-date {
+  font-size: 0.85rem;
+  color: #999999;
+}
+
+.comment-content {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.comment-text {
+  color: #e0e0e0;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.comment-edit-form {
+  margin-top: 0.5rem;
+}
+
+.comment-edit-form-inner textarea {
+  background-color: #282828;
+  border-color: #555555;
+  color: #e0e0e0;
+}
+
+.comment-edit-form-inner textarea:focus {
+  background-color: #282828;
+  border-color: #7F6DF2;
+  color: #e0e0e0;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.comment-actions .btn {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem;
+}
+
+.add-comment-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #444444;
+}
+
+.add-comment-section h5 {
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.add-comment-section textarea {
+  background-color: #333333;
+  border-color: #555555;
+  color: #e0e0e0;
+}
+
+.add-comment-section textarea:focus {
+  background-color: #333333;
+  border-color: #7F6DF2;
+  color: #e0e0e0;
+}
+
+.add-comment-section textarea::placeholder {
+  color: #999999;
+}

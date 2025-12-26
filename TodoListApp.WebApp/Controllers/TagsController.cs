@@ -38,7 +38,8 @@ namespace TodoListApp.WebApp.Controllers
                                       (task.TodoList!.OwnerId == userId || task.AssignedUserId == userId))
                         .Count()
                 })
-                .OrderBy(x => x.Tag.Name)
+                .OrderByDescending(x => x.TaskCount)
+                .ThenBy(x => x.Tag.Name)
                 .ToListAsync();
 
             var tagViewModels = tags.Select(x => new TagViewModel
