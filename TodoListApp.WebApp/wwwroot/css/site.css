@@ -49,28 +49,34 @@ a[disabled]:hover,
   text-decoration: none;
 }
 
-/* Primary Buttons - Purple Accent */
+/* Primary Buttons - Transparent purple background without outline */
 .btn-primary {
-  background-color: #7F6DF2;
-  border-color: #7F6DF2;
-  color: #ffffff;
+  background-color: rgba(127, 109, 242, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
 }
 
 .btn-primary:hover {
-  background-color: #9B8DF5;
-  border-color: #9B8DF5;
-  color: #ffffff;
+  background-color: rgba(127, 109, 242, 0.35) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
 }
 
 .btn-primary:focus, .btn-primary:active:focus {
-  background-color: #9B8DF5;
-  border-color: #9B8DF5;
-  box-shadow: 0 0 0 0.1rem #282828, 0 0 0 0.25rem #7F6DF2;
+  background-color: rgba(127, 109, 242, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #7F6DF2 !important;
 }
 
 .btn-primary:active {
-  background-color: #6B5ADF;
-  border-color: #6B5ADF;
+  background-color: rgba(127, 109, 242, 0.4) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
 }
 
 /* Navbar - Dark Theme */
@@ -322,27 +328,64 @@ textarea:not(.form-control)::placeholder {
   box-shadow: 0 0 0 0.1rem #282828, 0 0 0 0.25rem #7F6DF2;
 }
 
+/* Secondary Buttons - Transparent grey background without outline */
 .btn-secondary {
-  background-color: #555555;
-  border-color: #555555;
-  color: #e0e0e0;
+  background-color: rgba(85, 85, 85, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #e0e0e0 !important;
 }
 
 .btn-secondary:hover {
-  background-color: #666666;
-  border-color: #666666;
-  color: #e0e0e0;
+  background-color: rgba(102, 102, 102, 0.35) !important;
+  border: none !important;
+  outline: none !important;
+  color: #e0e0e0 !important;
 }
 
+.btn-secondary:focus, .btn-secondary:active:focus {
+  background-color: rgba(85, 85, 85, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #e0e0e0 !important;
+}
+
+.btn-secondary:active {
+  background-color: rgba(102, 102, 102, 0.4) !important;
+  border: none !important;
+  outline: none !important;
+  color: #e0e0e0 !important;
+}
+
+/* Outline Primary Buttons - Transparent purple background without outline */
 .btn-outline-primary {
-  border-color: #7F6DF2;
-  color: #7F6DF2;
+  background-color: rgba(127, 109, 242, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
 }
 
 .btn-outline-primary:hover {
-  background-color: #7F6DF2;
-  border-color: #7F6DF2;
-  color: #ffffff;
+  background-color: rgba(127, 109, 242, 0.35) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
+}
+
+.btn-outline-primary:focus, .btn-outline-primary:active:focus {
+  background-color: rgba(127, 109, 242, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #7F6DF2 !important;
+}
+
+.btn-outline-primary:active {
+  background-color: rgba(127, 109, 242, 0.4) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
 }
 
 /* Danger/Delete Button - Red */
@@ -369,30 +412,34 @@ textarea:not(.form-control)::placeholder {
   border-color: #b21f2d;
 }
 
-/* Outline Danger Button - No background, red border and text */
+/* Outline Danger Button - Transparent red background without outline */
 .btn-outline-danger {
-  background-color: transparent;
-  border-color: #dc3545;
-  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #dc3545 !important;
 }
 
 .btn-outline-danger:hover {
-  background-color: transparent;
-  border-color: #c82333;
-  color: #c82333;
+  background-color: rgba(220, 53, 69, 0.35) !important;
+  border: none !important;
+  outline: none !important;
+  color: #dc3545 !important;
 }
 
 .btn-outline-danger:focus, .btn-outline-danger:active:focus {
-  background-color: transparent;
-  border-color: #dc3545;
-  color: #dc3545;
-  box-shadow: 0 0 0 0.1rem #282828, 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
+  background-color: rgba(220, 53, 69, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #dc3545 !important;
 }
 
 .btn-outline-danger:active {
-  background-color: transparent;
-  border-color: #bd2130;
-  color: #bd2130;
+  background-color: rgba(220, 53, 69, 0.4) !important;
+  border: none !important;
+  outline: none !important;
+  color: #dc3545 !important;
 }
 
 /* Footer - Dark Theme */
@@ -503,6 +550,35 @@ textarea:not(.form-control)::placeholder {
   background-color: #7F6DF2;
 }
 
+/* Status summary badges - transparent colored backgrounds without outline */
+.badge.bg-warning {
+  background-color: rgba(255, 193, 7, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #ffc107 !important;
+}
+
+.badge.bg-primary {
+  background-color: rgba(13, 110, 253, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #0d6efd !important;
+}
+
+.badge.bg-success {
+  background-color: rgba(40, 167, 69, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #28a745 !important;
+}
+
+.badge.bg-danger {
+  background-color: rgba(220, 53, 69, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  color: #dc3545 !important;
+}
+
 /* List Groups - Dark Theme */
 .list-group-item {
   background-color: #333333;
@@ -541,20 +617,59 @@ dl.row dd {
   overflow-wrap: break-word;
 }
 
-/* Status color coding for dropdowns */
-.form-select.status-pending {
-  border-color: #ffc107 !important;
+/* Status color coding for dropdowns - colored half-transparent background without outline */
+.form-select.status-pending,
+select.status-pending,
+select.form-control.status-pending {
+  background-color: rgba(255, 193, 7, 0.25) !important;
+  border: none !important;
+  outline: none !important;
   color: #ffc107 !important;
 }
 
-.form-select.status-inprogress {
-  border-color: #0d6efd !important;
+.form-select.status-pending:focus,
+select.status-pending:focus,
+select.form-control.status-pending:focus {
+  background-color: rgba(255, 193, 7, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.form-select.status-inprogress,
+select.status-inprogress,
+select.form-control.status-inprogress {
+  background-color: rgba(13, 110, 253, 0.25) !important;
+  border: none !important;
+  outline: none !important;
   color: #0d6efd !important;
 }
 
-.form-select.status-completed {
-  border-color: #28a745 !important;
+.form-select.status-inprogress:focus,
+select.status-inprogress:focus,
+select.form-control.status-inprogress:focus {
+  background-color: rgba(13, 110, 253, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.form-select.status-completed,
+select.status-completed,
+select.form-control.status-completed {
+  background-color: rgba(40, 167, 69, 0.25) !important;
+  border: none !important;
+  outline: none !important;
   color: #28a745 !important;
+}
+
+.form-select.status-completed:focus,
+select.status-completed:focus,
+select.form-control.status-completed:focus {
+  background-color: rgba(40, 167, 69, 0.25) !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Hide dropdown arrow for search dropdown */
@@ -562,16 +677,17 @@ dl.row dd {
   display: none !important;
 }
 
-/* Tag badges - Grey button styling */
+/* Tag badges - Transparent grey background without outline */
 .tag-badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.5;
-  color: #e0e0e0;
-  background-color: #555555;
-  border: 1px solid #666666;
+  color: #e0e0e0 !important;
+  background-color: rgba(85, 85, 85, 0.25) !important;
+  border: none !important;
+  outline: none !important;
   border-radius: 0.25rem;
   white-space: nowrap;
   vertical-align: middle;
@@ -580,53 +696,73 @@ dl.row dd {
 }
 
 .tag-badge:hover {
-  background-color: #666666;
-  border-color: #777777;
-  color: #e0e0e0;
+  background-color: rgba(102, 102, 102, 0.35) !important;
+  border: none !important;
+  outline: none !important;
+  color: #e0e0e0 !important;
   text-decoration: none;
 }
 
 /* Tag badge as link */
 a.tag-badge {
-  color: #e0e0e0;
+  color: #e0e0e0 !important;
   text-decoration: none;
 }
 
 a.tag-badge:hover {
-  color: #e0e0e0;
+  color: #e0e0e0 !important;
   text-decoration: none;
 }
 
-/* Tag filter buttons in search */
+/* Tag badge as button */
+button.tag-badge {
+  color: #e0e0e0 !important;
+  text-decoration: none;
+  border: none !important;
+  background-color: rgba(85, 85, 85, 0.25) !important;
+}
+
+button.tag-badge:hover {
+  color: #e0e0e0 !important;
+  text-decoration: none;
+  background-color: rgba(102, 102, 102, 0.35) !important;
+  border: none !important;
+}
+
+/* Tag filter buttons in search - Transparent purple background without outline */
 .tag-filter-btn {
   display: inline-block;
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
   line-height: 1.5;
-  color: #e0e0e0;
-  background-color: #555555;
-  border: 1px solid #666666;
+  color: #7F6DF2 !important;
+  background-color: rgba(127, 109, 242, 0.25) !important;
+  border: none !important;
+  outline: none !important;
   border-radius: 0.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tag-filter-btn:hover {
-  background-color: #666666;
-  border-color: #777777;
-  color: #ffffff;
+  background-color: rgba(127, 109, 242, 0.35) !important;
+  border: none !important;
+  outline: none !important;
+  color: #7F6DF2 !important;
 }
 
 .tag-filter-selected {
-  background-color: #7F6DF2 !important;
-  border-color: #7F6DF2 !important;
+  background-color: rgba(127, 109, 242, 0.5) !important;
+  border: none !important;
+  outline: none !important;
   color: #ffffff !important;
 }
 
 .tag-filter-selected:hover {
-  background-color: #9B8DF5 !important;
-  border-color: #9B8DF5 !important;
+  background-color: rgba(127, 109, 242, 0.6) !important;
+  border: none !important;
+  outline: none !important;
 }
 
 /* Tag remove button */

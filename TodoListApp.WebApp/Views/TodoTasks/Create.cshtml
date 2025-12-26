@@ -29,7 +29,7 @@
             
             <div class="form-group mb-3">
                 <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<TodoListApp.WebApp.Models.TaskStatus>()"></select>
+                <select asp-for="Status" class="form-control status-select" asp-items="Html.GetEnumSelectList<TodoListApp.WebApp.Models.TaskStatus>()" onchange="updateStatusColor(this);"></select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             
@@ -49,5 +49,28 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Initialize status color for status dropdown
+        function updateStatusColor(selectElement) {
+            const value = selectElement.value;
+            selectElement.classList.remove('status-pending', 'status-inprogress', 'status-completed');
+            
+            if (value === 'Pending') {
+                selectElement.classList.add('status-pending');
+            } else if (value === 'InProgress') {
+                selectElement.classList.add('status-inprogress');
+            } else if (value === 'Completed') {
+                selectElement.classList.add('status-completed');
+            }
+        }
+
+        // Initialize status color on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.querySelector('select.status-select');
+            if (statusSelect) {
+                updateStatusColor(statusSelect);
+            }
+        });
+    </script>
 }
 
