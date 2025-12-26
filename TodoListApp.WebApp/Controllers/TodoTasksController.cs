@@ -92,7 +92,6 @@ namespace TodoListApp.WebApp.Controllers
                     .ThenInclude(tl => tl!.Owner)
                 .Include(t => t.AssignedUser)
                 .Include(t => t.Tags)
-                .Include(t => t.Comments)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (todoTask == null)
@@ -155,7 +154,6 @@ namespace TodoListApp.WebApp.Controllers
 
             ModelState.Remove("TodoList");
             ModelState.Remove("Tags");
-            ModelState.Remove("Comments");
             ModelState.Remove("AssignedUser");
 
             if (ModelState.IsValid)
@@ -240,7 +238,6 @@ namespace TodoListApp.WebApp.Controllers
 
             ModelState.Remove("TodoList");
             ModelState.Remove("Tags");
-            ModelState.Remove("Comments");
 
             if (ModelState.IsValid)
             {

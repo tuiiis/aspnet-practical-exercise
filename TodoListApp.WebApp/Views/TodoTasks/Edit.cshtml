@@ -65,25 +65,11 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        // Initialize status color for status dropdown
-        function updateStatusColor(selectElement) {
-            const value = selectElement.value;
-            selectElement.classList.remove('status-pending', 'status-inprogress', 'status-completed');
-            
-            if (value === 'Pending') {
-                selectElement.classList.add('status-pending');
-            } else if (value === 'InProgress') {
-                selectElement.classList.add('status-inprogress');
-            } else if (value === 'Completed') {
-                selectElement.classList.add('status-completed');
-            }
-        }
-
-        // Initialize status color on page load
+        // Initialize status color on page load (uses shared function from site.js)
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelect = document.querySelector('select.status-select');
-            if (statusSelect) {
-                updateStatusColor(statusSelect);
+            if (statusSelect && window.updateStatusColor) {
+                window.updateStatusColor(statusSelect);
             }
         });
     </script>

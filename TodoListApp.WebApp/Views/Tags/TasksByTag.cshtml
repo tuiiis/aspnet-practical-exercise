@@ -17,16 +17,16 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th style="width: 150px; max-width: 150px;">
+                <th class="table-col-title">
                     Task
                 </th>
-                <th style="width: 70px; min-width: 70px; max-width: 70px;">
+                <th class="table-col-status">
                     Status
                 </th>
-                <th style="width: 110px; min-width: 110px; max-width: 110px;">
+                <th class="table-col-due-date">
                     Due Date
                 </th>
-                <th style="width: 30%;">
+                <th class="table-col-tags">
                     Tags
                 </th>
                 <th>
@@ -40,24 +40,24 @@ else
                 var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
                 var rowClass = isOverdue ? "table-danger" : "";
                 
-                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
-                    <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })">
+                    <td class="table-col-title table-cell-overflow">
                         @Html.DisplayFor(modelItem => item.Title)
                         @if (isOverdue)
                         {
                             <span class="badge bg-danger ms-2">Overdue</span>
                         }
                     </td>
-                    <td style="width: 70px; max-width: 70px;">
+                    <td class="table-col-status">
                         @Html.DisplayFor(modelItem => item.Status)
                     </td>
-                    <td style="width: 110px; max-width: 110px;">
+                    <td class="table-col-due-date">
                         @if (item.DueDate.HasValue)
                         {
                             @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
                         }
                     </td>
-                    <td style="max-width: 0;">
+                    <td class="table-col-tags">
                         @if (item.Tags != null && item.Tags.Any())
                         {
                             <div class="d-flex flex-wrap gap-1">
@@ -84,19 +84,4 @@ else
     </table>
 }
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const rows = document.querySelectorAll('.clickable-row');
-            rows.forEach(function(row) {
-                row.addEventListener('click', function(e) {
-                    const href = this.getAttribute('data-href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-        });
-    </script>
-}
 

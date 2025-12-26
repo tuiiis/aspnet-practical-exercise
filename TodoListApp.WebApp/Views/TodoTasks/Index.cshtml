@@ -26,14 +26,14 @@
             </form>
         </div>
         <div class="mt-2">
-            <span class="badge bg-warning me-2" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">Pending: @ViewData["PendingCount"]</span>
-            <span class="badge bg-primary me-2" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">In Progress: @ViewData["InProgressCount"]</span>
-            <span class="badge bg-success me-2" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">Completed: @ViewData["CompletedCount"]</span>
-            <span class="badge bg-danger" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">Overdue: @ViewData["OverdueCount"]</span>
+            <span class="badge bg-warning me-2 badge-count">Pending: @ViewData["PendingCount"]</span>
+            <span class="badge bg-primary me-2 badge-count">In Progress: @ViewData["InProgressCount"]</span>
+            <span class="badge bg-success me-2 badge-count">Completed: @ViewData["CompletedCount"]</span>
+            <span class="badge bg-danger badge-count">Overdue: @ViewData["OverdueCount"]</span>
         </div>
     </div>
     <div>
-        <a asp-action="Create" asp-route-todoListId="@todoListId" class="btn btn-primary btn-lg p-1" style="line-height: 1;" title="Create New Task">
+        <a asp-action="Create" asp-route-todoListId="@todoListId" class="btn btn-primary btn-lg btn-icon-sm" title="Create New Task">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7F6DF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -51,19 +51,19 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th style="width: 150px; max-width: 150px;">
+                <th class="table-col-title">
                     @Html.DisplayNameFor(model => model.Title)
                 </th>
-                <th style="width: 70px; min-width: 70px; max-width: 70px;">
+                <th class="table-col-status">
                     @Html.DisplayNameFor(model => model.Status)
                 </th>
-                <th style="width: 110px; min-width: 110px; max-width: 110px;">
+                <th class="table-col-due-date">
                     @Html.DisplayNameFor(model => model.DueDate)
                 </th>
-                <th style="width: 30%;">
+                <th class="table-col-tags">
                     Tags
                 </th>
-                <th style="width: 1%; white-space: nowrap;"></th>
+                <th class="table-col-actions"></th>
             </tr>
         </thead>
         <tbody>
@@ -72,15 +72,15 @@ else
                 var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
                 var rowClass = isOverdue ? "table-danger" : "";
                 
-                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
-                    <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })">
+                    <td class="table-col-title table-cell-overflow">
                         @Html.DisplayFor(modelItem => item.Title)
                         @if (isOverdue)
                         {
                             <span class="badge bg-danger ms-2">Overdue</span>
                         }
                     </td>
-                    <td onclick="event.stopPropagation();" style="width: 70px; max-width: 70px; padding: 0.375rem;">
+                    <td class="table-col-status" onclick="event.stopPropagation();" style="padding: 0.375rem;">
                         <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();" style="width: 100%; margin: 0; padding: 0;">
                             <input type="hidden" name="id" value="@item.Id" />
                             <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -94,20 +94,20 @@ else
                                     _ => ""
                                 };
                             }
-                            <select name="status" class="form-select form-select-sm status-select @statusClass" style="width: 100%; max-width: 100%; font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
+                            <select name="status" class="form-select form-select-sm status-select @statusClass" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
                                 <option value="Pending" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Pending ? "selected" : null)">Pending</option>
                                 <option value="InProgress" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.InProgress ? "selected" : null)">In Progress</option>
                                 <option value="Completed" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Completed ? "selected" : null)">Completed</option>
                             </select>
                         </form>
                     </td>
-                    <td style="width: 110px; max-width: 110px;">
+                    <td class="table-col-due-date">
                         @if (item.DueDate.HasValue)
                         {
                             @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
                         }
                     </td>
-                    <td style="max-width: 0;">
+                    <td class="table-col-tags">
                         @if (item.Tags != null && item.Tags.Any())
                         {
                             <div class="d-flex flex-wrap gap-1">
@@ -122,7 +122,7 @@ else
                             <span class="text-muted">No tags</span>
                         }
                     </td>
-                    <td class="text-end" style="width: 1%; white-space: nowrap;" onclick="event.stopPropagation();">
+                    <td class="table-col-actions text-end" onclick="event.stopPropagation();">
                         <form method="post" asp-action="ToggleAssignment" class="d-inline me-2" onclick="event.stopPropagation();">
                             <input type="hidden" name="id" value="@item.Id" />
                             <input type="hidden" name="returnUrl" value="@returnUrl" />
@@ -144,7 +144,7 @@ else
                                 </button>
                             }
                         </form>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm p-1" onclick="event.stopPropagation();" title="Delete" style="line-height: 1;">
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm btn-icon-sm" onclick="event.stopPropagation();" title="Delete">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -160,16 +160,6 @@ else
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const rows = document.querySelectorAll('.clickable-row');
-            rows.forEach(function(row) {
-                row.addEventListener('click', function(e) {
-                    const href = this.getAttribute('data-href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-
             // Inline title editing
             const editBtn = document.getElementById('edit-title-btn');
             const titleDisplay = document.getElementById('list-title-display');
@@ -177,99 +167,82 @@ else
             const todoListId = @todoListId;
             const originalTitle = '@todoListTitle';
 
-            editBtn.addEventListener('click', function() {
-                titleDisplay.classList.add('d-none');
-                titleInput.classList.remove('d-none');
-                titleInput.focus();
-                titleInput.select();
-            });
+            if (editBtn && titleDisplay && titleInput) {
+                editBtn.addEventListener('click', function() {
+                    titleDisplay.classList.add('d-none');
+                    titleInput.classList.remove('d-none');
+                    titleInput.focus();
+                    titleInput.select();
+                });
 
-            function saveTitle() {
-                const newTitle = titleInput.value.trim();
-                if (newTitle === '' || newTitle === originalTitle) {
-                    cancelEdit();
-                    return;
+                function saveTitle() {
+                    const newTitle = titleInput.value.trim();
+                    if (newTitle === '' || newTitle === originalTitle) {
+                        cancelEdit();
+                        return;
+                    }
+
+                    // Get anti-forgery token
+                    const token = document.querySelector('#title-update-form input[name="__RequestVerificationToken"]')?.value || '';
+
+                    const formData = new FormData();
+                    formData.append('id', todoListId);
+                    formData.append('title', newTitle);
+                    if (token) {
+                        formData.append('__RequestVerificationToken', token);
+                    }
+
+                    fetch('@Url.Action("UpdateTitle", "TodoLists")', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            titleDisplay.textContent = data.title;
+                            titleInput.value = data.title;
+                            titleDisplay.classList.remove('d-none');
+                            titleInput.classList.add('d-none');
+                            // Reload page to update the title in the URL and other places
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Failed to update title');
+                            cancelEdit();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating the title');
+                        cancelEdit();
+                    });
                 }
 
-                // Get anti-forgery token
-                const token = document.querySelector('#title-update-form input[name="__RequestVerificationToken"]')?.value || '';
-
-                const formData = new FormData();
-                formData.append('id', todoListId);
-                formData.append('title', newTitle);
-                if (token) {
-                    formData.append('__RequestVerificationToken', token);
+                function cancelEdit() {
+                    titleInput.value = originalTitle;
+                    titleDisplay.classList.remove('d-none');
+                    titleInput.classList.add('d-none');
                 }
 
-                fetch('@Url.Action("UpdateTitle", "TodoLists")', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        titleDisplay.textContent = data.title;
-                        titleInput.value = data.title;
-                        titleDisplay.classList.remove('d-none');
-                        titleInput.classList.add('d-none');
-                        // Reload page to update the title in the URL and other places
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Failed to update title');
+                titleInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveTitle();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
                         cancelEdit();
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating the title');
-                    cancelEdit();
+                });
+
+                titleInput.addEventListener('blur', function() {
+                    // Save on blur if value changed
+                    if (titleInput.value.trim() !== originalTitle && titleInput.value.trim() !== '') {
+                        saveTitle();
+                    } else {
+                        cancelEdit();
+                    }
                 });
             }
-
-            function cancelEdit() {
-                titleInput.value = originalTitle;
-                titleDisplay.classList.remove('d-none');
-                titleInput.classList.add('d-none');
-            }
-
-            titleInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    saveTitle();
-                } else if (e.key === 'Escape') {
-                    e.preventDefault();
-                    cancelEdit();
-                }
-            });
-
-            titleInput.addEventListener('blur', function() {
-                // Save on blur if value changed
-                if (titleInput.value.trim() !== originalTitle && titleInput.value.trim() !== '') {
-                    saveTitle();
-                } else {
-                    cancelEdit();
-                }
-            });
-
-            // Initialize status colors on page load
-            const statusSelects = document.querySelectorAll('.status-select');
-            statusSelects.forEach(function(select) {
-                updateStatusColor(select);
-            });
         });
-
-        function updateStatusColor(selectElement) {
-            const value = selectElement.value;
-            selectElement.classList.remove('status-pending', 'status-inprogress', 'status-completed');
-            
-            if (value === 'Pending') {
-                selectElement.classList.add('status-pending');
-            } else if (value === 'InProgress') {
-                selectElement.classList.add('status-inprogress');
-            } else if (value === 'Completed') {
-                selectElement.classList.add('status-completed');
-            }
-        }
     </script>
 }
 

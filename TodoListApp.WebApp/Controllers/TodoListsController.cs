@@ -74,7 +74,6 @@ namespace TodoListApp.WebApp.Controllers
             todoList.OwnerId = userId!;
 
             ModelState.Remove("OwnerId");
-            //ModelState.ClearValidationState(nameof(todoList.OwnerId)); ???
 
             if (ModelState.IsValid)
             {

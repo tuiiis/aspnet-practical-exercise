@@ -8,14 +8,14 @@
     <div>
         <h2 class="mb-2">@ViewData["Title"]</h2>
         <div class="mt-2">
-            <span class="badge bg-warning me-2" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">Pending: @ViewData["PendingCount"]</span>
-            <span class="badge bg-primary me-2" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">In Progress: @ViewData["InProgressCount"]</span>
-            <span class="badge bg-success me-2" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">Completed: @ViewData["CompletedCount"]</span>
-            <span class="badge bg-danger" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;">Overdue: @ViewData["OverdueCount"]</span>
+            <span class="badge bg-warning me-2 badge-count">Pending: @ViewData["PendingCount"]</span>
+            <span class="badge bg-primary me-2 badge-count">In Progress: @ViewData["InProgressCount"]</span>
+            <span class="badge bg-success me-2 badge-count">Completed: @ViewData["CompletedCount"]</span>
+            <span class="badge bg-danger badge-count">Overdue: @ViewData["OverdueCount"]</span>
         </div>
     </div>
     <div>
-        <a asp-action="Create" class="btn btn-primary btn-lg p-1" style="line-height: 1;" title="Create New List">
+        <a asp-action="Create" class="btn btn-primary btn-lg btn-icon-sm" title="Create New List">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7F6DF2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -40,7 +40,7 @@
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
                 <td class="text-end">
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm p-1" onclick="event.stopPropagation();" title="Delete" style="line-height: 1;">
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm btn-icon-sm" onclick="event.stopPropagation();" title="Delete">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -51,19 +51,3 @@
         }
     </tbody>
 </table>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const rows = document.querySelectorAll('.clickable-row');
-            rows.forEach(function(row) {
-                row.addEventListener('click', function() {
-                    const href = this.getAttribute('data-href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-        });
-    </script>
-}

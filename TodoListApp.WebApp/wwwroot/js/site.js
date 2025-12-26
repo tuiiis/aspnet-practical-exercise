@@ -167,3 +167,51 @@
         }
     });
 })();
+
+// Shared functions for task management
+(function() {
+    // Initialize clickable table rows
+    function initializeClickableRows() {
+        const rows = document.querySelectorAll('.clickable-row');
+        rows.forEach(function(row) {
+            row.addEventListener('click', function(e) {
+                const href = this.getAttribute('data-href');
+                if (href && !e.target.closest('button, a, select, input')) {
+                    window.location.href = href;
+                }
+            });
+        });
+    }
+
+    // Update status dropdown color based on selected value
+    function updateStatusColor(selectElement) {
+        if (!selectElement) return;
+        const value = selectElement.value;
+        selectElement.classList.remove('status-pending', 'status-inprogress', 'status-completed');
+        
+        if (value === 'Pending') {
+            selectElement.classList.add('status-pending');
+        } else if (value === 'InProgress') {
+            selectElement.classList.add('status-inprogress');
+        } else if (value === 'Completed') {
+            selectElement.classList.add('status-completed');
+        }
+    }
+
+    // Initialize status colors for all status selects on page load
+    function initializeStatusColors() {
+        const statusSelects = document.querySelectorAll('.status-select');
+        statusSelects.forEach(function(select) {
+            updateStatusColor(select);
+        });
+    }
+
+    // Make functions globally available
+    window.updateStatusColor = updateStatusColor;
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeClickableRows();
+        initializeStatusColors();
+    });
+})();

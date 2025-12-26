@@ -42,19 +42,19 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th style="width: 150px; max-width: 150px;">
+                <th class="table-col-title">
                     Task
                 </th>
-                <th style="width: 70px; min-width: 70px; max-width: 70px;">
+                <th class="table-col-status">
                     Status
                 </th>
-                <th style="width: 110px; min-width: 110px; max-width: 110px;">
+                <th class="table-col-due-date">
                     Due Date
                 </th>
-                <th style="width: 30%;">
+                <th class="table-col-tags">
                     Tags
                 </th>
-                <th style="width: 1%; white-space: nowrap;"></th>
+                <th class="table-col-actions"></th>
             </tr>
         </thead>
         <tbody>
@@ -64,8 +64,8 @@ else
                 var rowClass = isOverdue ? "table-danger" : "";
                 var assignedTasksReturnUrl = Url.Action("AssignedTasks", "TodoTasks");
                 
-                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id, returnUrl = assignedTasksReturnUrl })" style="cursor: pointer;">
-                    <td style="width: 150px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id, returnUrl = assignedTasksReturnUrl })">
+                    <td class="table-col-title table-cell-overflow">
                         @Html.DisplayFor(modelItem => item.Title)
                         @if (item.TodoList != null)
                         {
@@ -76,7 +76,7 @@ else
                             <span class="badge bg-danger ms-2">Overdue</span>
                         }
                     </td>
-                    <td onclick="event.stopPropagation();" style="width: 70px; max-width: 70px; padding: 0.375rem;">
+                    <td class="table-col-status" onclick="event.stopPropagation();" style="padding: 0.375rem;">
                         <form method="post" asp-action="UpdateStatus" class="d-inline" onclick="event.stopPropagation();" style="width: 100%; margin: 0; padding: 0;">
                             <input type="hidden" name="id" value="@item.Id" />
                             @Html.AntiForgeryToken()
@@ -89,20 +89,20 @@ else
                                     _ => ""
                                 };
                             }
-                            <select name="status" class="form-select form-select-sm status-select @statusClass" style="width: 100%; max-width: 100%; font-size: 0.875rem; padding: 0.25rem 0.5rem; box-sizing: border-box;" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
+                            <select name="status" class="form-select form-select-sm status-select @statusClass" data-status="@item.Status.ToString()" onchange="updateStatusColor(this); this.form.submit(); event.stopPropagation();">
                                 <option value="Pending" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Pending ? "selected" : null)">Pending</option>
                                 <option value="InProgress" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.InProgress ? "selected" : null)">In Progress</option>
                                 <option value="Completed" selected="@(item.Status == TodoListApp.WebApp.Models.TaskStatus.Completed ? "selected" : null)">Completed</option>
                             </select>
                         </form>
                     </td>
-                    <td style="width: 110px; max-width: 110px;">
+                    <td class="table-col-due-date">
                         @if (item.DueDate.HasValue)
                         {
                             @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
                         }
                     </td>
-                    <td style="max-width: 0;">
+                    <td class="table-col-tags">
                         @if (item.Tags != null && item.Tags.Any())
                         {
                             <div class="d-flex flex-wrap gap-1">
@@ -117,7 +117,7 @@ else
                             <span class="text-muted">No tags</span>
                         }
                     </td>
-                    <td class="text-end" style="width: 1%; white-space: nowrap;" onclick="event.stopPropagation();">
+                    <td class="table-col-actions text-end" onclick="event.stopPropagation();">
                     </td>
                 </tr>
             }
@@ -125,38 +125,4 @@ else
     </table>
 }
 
-@section Scripts {
-    <script>
-        function updateStatusColor(selectElement) {
-            const value = selectElement.value;
-            selectElement.classList.remove('status-pending', 'status-inprogress', 'status-completed');
-            
-            if (value === 'Pending') {
-                selectElement.classList.add('status-pending');
-            } else if (value === 'InProgress') {
-                selectElement.classList.add('status-inprogress');
-            } else if (value === 'Completed') {
-                selectElement.classList.add('status-completed');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const rows = document.querySelectorAll('.clickable-row');
-            rows.forEach(function(row) {
-                row.addEventListener('click', function(e) {
-                    const href = this.getAttribute('data-href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-
-            // Initialize status colors on page load
-            const statusSelects = document.querySelectorAll('.status-select');
-            statusSelects.forEach(function(select) {
-                updateStatusColor(select);
-            });
-        });
-    </script>
-}
 
