@@ -530,3 +530,8 @@ dl.row dd {
   border-color: #28a745 !important;
   color: #28a745 !important;
 }
+
+/* Hide dropdown arrow for search dropdown */
+#searchDropdown::after {
+  display: none !important;
+}

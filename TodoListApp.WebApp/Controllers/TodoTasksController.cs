@@ -450,6 +450,70 @@ namespace TodoListApp.WebApp.Controllers
 
             return RedirectToAction(nameof(Index), new { todoListId = task.TodoListId });
         }
+
+        // GET: TodoTasks/Search
+        public async Task<IActionResult> Search(string? searchTerm)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+
+            var query = _context.TodoTasks
+                .Include(t => t.TodoList)
+                    .ThenInclude(tl => tl!.Owner)
+                .Include(t => t.AssignedUser)
+                .Where(t => t.TodoList!.OwnerId == userId || t.AssignedUserId == userId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(t => t.Title != null && t.Title.Contains(searchTerm));
+            }
+
+            var tasks = await query.OrderBy(t => t.CreatedDate).ToListAsync();
+
+            ViewData["SearchTerm"] = searchTerm;
+
+            return View(tasks);
+        }
+
+        // GET: TodoTasks/SearchJson
+        [HttpGet]
+        public async Task<IActionResult> SearchJson(string? searchTerm)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return Json(new { tasks = new List<object>() });
+            }
+
+            var query = _context.TodoTasks
+                .Include(t => t.TodoList)
+                .Include(t => t.AssignedUser)
+                .Where(t => t.TodoList!.OwnerId == userId || t.AssignedUserId == userId);
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(t => t.Title != null && t.Title.Contains(searchTerm));
+            }
+
+            var tasks = await query
+                .OrderBy(t => t.CreatedDate)
+                .Take(10)
+                .Select(t => new
+                {
+                    id = t.Id,
+                    title = t.Title,
+                    status = t.Status.ToString(),
+                    dueDate = t.DueDate.HasValue ? t.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy") : null,
+                    isOverdue = t.DueDate.HasValue && t.DueDate.Value < DateTime.UtcNow && t.Status != Models.TaskStatus.Completed,
+                    todoListTitle = t.TodoList != null ? t.TodoList.Title : null
+                })
+                .ToListAsync();
+
+            return Json(new { tasks });
+        }
     }
 }
 

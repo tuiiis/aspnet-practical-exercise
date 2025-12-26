@@ -44,10 +44,10 @@ Here are some hints for you:
 | EP02 | US08       | Delete a to-do task.                                                            | ✅            |
 | EP02 | US09       | Edit a to-do task.                                                              | ✅            |
 | EP02 | US10       | Highlight tasks that are overdue.                                               | ✅            |
-| EP03 | US11       | View a list of tasks assigned to me.                                            |               |
-| EP03 | US12       | Filter tasks in my assigned task list.                                          |               |
-| EP03 | US13       | Sort tasks in my assigned task list.                                            |               |
-| EP03 | US14       | Change the status of a task from the list of assigned tasks.                    |               |
+| EP03 | US11       | View a list of tasks assigned to me.                                            | ✅            |
+| EP03 | US12       | Filter tasks in my assigned task list.                                          | ✅            |
+| EP03 | US13       | Sort tasks in my assigned task list.                                            | ✅            |
+| EP03 | US14       | Change the status of a task from the list of assigned tasks.                    | ✅            |
 | EP04 | US15       | Search for tasks with specified text in the task title.                         |               |
 | EP04 | US16       | Highlight tasks that are overdue on the search result page.                     |               |
 | EP05 | US17       | View a list of tags on the task details page.                                   |               |

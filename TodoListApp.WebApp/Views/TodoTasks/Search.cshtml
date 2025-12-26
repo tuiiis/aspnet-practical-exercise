@@ -1,0 +1,119 @@
+@model IEnumerable<TodoListApp.WebApp.Models.TodoTask>
+
+@{
+    ViewData["Title"] = "Search Tasks";
+    var searchTerm = ViewData["SearchTerm"] as string ?? "";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <form method="get" asp-action="Search" class="d-flex gap-2">
+            <div class="flex-grow-1">
+                <label for="searchTerm" class="form-label">Search by Title:</label>
+                <input type="text" name="searchTerm" id="searchTerm" class="form-control" value="@searchTerm" placeholder="Enter search term..." />
+            </div>
+            <div class="d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(searchTerm))
+{
+    @if (!Model.Any())
+    {
+        <p class="text-muted">No tasks found matching your search criteria.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Task
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        Due Date
+                    </th>
+                    <th style="width: 30%;">
+                        Description
+                    </th>
+                    <th>
+                        List
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var isOverdue = item.DueDate.HasValue && item.DueDate.Value < DateTime.UtcNow && item.Status != TodoListApp.WebApp.Models.TaskStatus.Completed;
+                    var rowClass = isOverdue ? "table-danger" : "";
+                    
+                    <tr class="@rowClass clickable-row" data-href="@Url.Action("Details", "TodoTasks", new { id = item.Id })" style="cursor: pointer;">
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                            @if (isOverdue)
+                            {
+                                <span class="badge bg-danger ms-2">Overdue</span>
+                            }
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @if (item.DueDate.HasValue)
+                            {
+                                @item.DueDate.Value.ToLocalTime().ToString("MM/dd/yyyy")
+                            }
+                            else
+                            {
+                                <span class="text-muted">No due date</span>
+                            }
+                        </td>
+                        <td style="max-width: 0;">
+                            @if (!string.IsNullOrEmpty(item.Description))
+                            {
+                                <div class="text-truncate d-block" title="@item.Description" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    @item.Description
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No description</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.TodoList != null)
+                            {
+                                <a href="@Url.Action("Index", "TodoTasks", new { todoListId = item.TodoList.Id })" onclick="event.stopPropagation();">@item.TodoList.Title</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.clickable-row');
+            rows.forEach(function(row) {
+                row.addEventListener('click', function(e) {
+                    const href = this.getAttribute('data-href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
+}
+
